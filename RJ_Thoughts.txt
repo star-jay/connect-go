@@ -1,0 +1,10 @@
+game verliezen als illegal move?
+
+twee random network bots
+met 0 en 1 hiddenlayer
+
+random bot : kiest random mogelijkheid
+
+offense bot : zoekt rapste manier van oplossen
+defence bot : zoekt rapste manier van tegenstander en doet iets anders
+
