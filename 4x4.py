@@ -99,7 +99,7 @@ class Player():
 class RandomPlayer(Player):
     def makeMove(self,game_state):
         #basic move 
-        return random.randint(0,COLS)
+        return random.randint(0,COLS-1)
     
 class Game():
     #list
@@ -110,19 +110,24 @@ class Game():
     def move(self,player):
         col = player.makeMove(self.state)        
         
-        if self.state[MAX_RANGE - COLS + col-1] != SIGNS[0]:
-            #kolom vol = illegal move
-            return False
-        
-        for x in range(ROWS-1):
-            veld = col + x*COLS
-            if self.state[veld] == SIGNS[0]:
-                #illegal move
-               #log.debug(veld)
-               self.state[veld] = player.sign
-               return True
+        #if self.state[MAX_RANGE - COLS + col-1] != SIGNS[0]:           
             
-    
+        
+        for x in range(ROWS):
+            try:
+                veld = col + x*COLS
+                if self.state[veld] == SIGNS[0]:
+                    #illegal move
+                   #log.debug(veld)
+                   self.state[veld] = player.sign
+                   return True
+            except IndexError:
+                print (veld)
+           
+        #kolom vol = illegal move
+        return False
+            
+            
     def start(self):
         #reset bord
         self.state = [SIGNS[0] for x in range(MAX_RANGE)]  
@@ -133,20 +138,26 @@ class Game():
     def play(self):
         self.start()               
         #maximum aantal zetten
+        
         for x in range(MAX_RANGE):
-            self.move(self.players[x % 2])        
-            
+            player = self.players[x % len(self.players)]            
+            if not self.move(player):
+                return False,player
+            else:
+                if controle_kolommen(self.state) or controle_rijen(self.state) or controle_diagonalen(self.state):
+                    return True,player                  
 
 def playgame():
-    game = Game()        
+    game = Game()  
+     
+    for x in range(1000):
+        winner,player = game.play()
+        if winner: 
+            print('We got a winner : '+player.sign)        
+        else:
+            print(player.sign+' lost by making illegal move')
     
-    game.play()
-    listje = game.state
-    print_rijen(listje)    
-    #print_diagonalen(listje)
-    controle_kolommen(listje)
-    controle_rijen(listje)
-    controle_diagonalen(listje)
+    #print_rijen(game.state)
 
 def main():   
     #random.seed(1)
@@ -164,4 +175,5 @@ def main():
     
 if __name__ == '__main__':
     #main()
+    
     playgame()
