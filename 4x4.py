@@ -16,6 +16,8 @@ COLS = 7
 MAX_RANGE = ROWS * COLS
 TARGET = 4
 SIGNS = '_ox'
+WIN = True
+LOSE = False
 
 def print_rijen(listje):
     for i in range(ROWS):        
@@ -132,30 +134,47 @@ class Game():
         #reset bord
         self.state = [SIGNS[0] for x in range(MAX_RANGE)]  
         #add players
-        self.players.append(Player(SIGNS[1]))
-        self.players.append(RandomPlayer(SIGNS[2]))
         
-    def play(self):
+        
+    def play(self,players):
         self.start()               
         #maximum aantal zetten
         
         for x in range(MAX_RANGE):
-            player = self.players[x % len(self.players)]            
+            player = players[x % len(players)]            
             if not self.move(player):
                 return False,player
             else:
                 if controle_kolommen(self.state) or controle_rijen(self.state) or controle_diagonalen(self.state):
                     return True,player                  
 
-def playgame():
-    game = Game()  
-     
+def playgame(players): 
+    
+    def addToScore(winorlose,player):       
+        #reverse winner
+        if winorlose == False and player==players[0]:
+                player = players[1]
+            
+        scores[player] += 1 
+        
+    scores = {}    
+    
+    for player in players:
+        scores[player] = 0
+    
     for x in range(1000):
-        winner,player = game.play()
-        if winner: 
+        #swap position
+        players[0], players[1] = players[1], players[0]
+        #play game
+        winorlose,player = Game().play(players)
+        if winorlose==WIN: 
             print('We got a winner : '+player.sign)        
         else:
             print(player.sign+' lost by making illegal move')
+            
+        addToScore(winorlose,player)
+        
+    return scores
     
     #print_rijen(game.state)
 
@@ -163,6 +182,8 @@ def main():
     #random.seed(1)
     tekens = 'ox'
     tekens = (1,0)    
+    
+    
     
     listje = list(tekens[random.randint(0,1)] for x in range(MAX_RANGE))   
     #listje = list(x for x in range(MAX_RANGE))                  
@@ -176,4 +197,14 @@ def main():
 if __name__ == '__main__':
     #main()
     
-    playgame()
+    players = []
+    
+    #define players
+    players.append(Player(SIGNS[1]))
+    players.append(RandomPlayer(SIGNS[2]))
+    
+    scores = playgame(players)
+    
+    for player in players:
+       print(player.sign +' : '+ str(scores[player]))
+    
