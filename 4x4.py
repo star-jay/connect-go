@@ -97,13 +97,16 @@ def controle_diagonalen(listje):
         
 def calculateElo(players,scores):
     
+    #  ELO    games     K
+    #<= 2000 	>300 		16
+    #> 2000 	>300 		12
+    #> 2200 	>300 		10 
+        
     R1 = 10 ** (scores[players[0]]/400)
     R2 = 10 ** (scores[players[1]]/400)
     
     E1 = R1 / (R1 + R2)   
     E2 = R2 / (R1 + R2)
-    
-   
         
     r1win = round( K*(1-E1))
     r1lose = round( K*(0-E1))
@@ -201,14 +204,14 @@ class Game():
         for x in range(MAX_RANGE):
             
             if not self.move(active_player):
-                return False,other_player,active_player
+                return LOSE,other_player,active_player
             else:
                 if controle_kolommen(self.state) or controle_rijen(self.state) or controle_diagonalen(self.state):
-                    return True,active_player,other_player
+                    return WIN,active_player,other_player
             #blijven spelen en spelrs omwisselen
             active_player,other_player = other_player,active_player
         
-        return None,active_player,other_player
+        return DRAW,active_player,other_player
                 
 class Tornooi:
     scores = {}
@@ -216,42 +219,41 @@ class Tornooi:
     def __init__(self,players):
         self.players = players
         
-    def playgame(self,players):   
-        def addToScore(winorlose,winner,loser,elo):  
-            if winorlose==DRAW :
-                log.warning('gelijkspel')
-                self.scores[DRAW] += elo[winner][DRAW]            
-                self.scores[DRAW]  += elo[loser][DRAW]
-            else:         
-                self.scores[winner] += elo[winner][WIN]            
-                self.scores[loser]  += elo[loser][LOSE]   
+    def addToScores(self,winorlose,winner,loser,elo):  
+        if winorlose==DRAW :
+            log.debug('gelijkspel')
+            self.scores[winner] += elo[winner][DRAW]            
+            self.scores[loser]  += elo[loser][DRAW]
+        else:         
+            self.scores[winner] += elo[winner][WIN]            
+            self.scores[loser]  += elo[loser][LOSE]
         
-        #stakes
+    def playgame(self,players):  
+        #stakes(ELO)
         elo = calculateElo(players,self.scores)
         #play game
         winorlose,winner,loser = Game(players).play()
-        if winorlose==WIN: 
-            log.debug('We got a winner : '+winner.name)        
-        else:
-            log.debug(loser.name+' lost by making illegal move')               
-            
-            
-        addToScore(winorlose,winner,loser,elo)
-        
+        #add scores
+        self.addToScores(winorlose,winner,loser,elo)        
     
     def run(self):
+        global K
         for player in self.players:
             self.scores[player] = 1200
          
         
         for x in range(1000):
+            if x>100:
+                K = 24
+            if x>300:
+                K = 16
+            
             games = itertools.permutations(self.players,2) 
             for game in games:
                self.playgame(game)     
     
         for speler in self.scores:
-            print(speler.name+' : '+str(self.scores[speler]))
-                 
+            print(speler.name+' : '+str(self.scores[speler]))                 
 
 def main():   
     players = []
@@ -264,6 +266,8 @@ def main():
     players.append(BasicPlayer('BasicPlayer 3.2'))
     players.append(BasicPlayer('BasicPlayer 3.3'))
     players.append(BasicPlayer('BasicPlayer 3.4'))
+    
+    random.shuffle(players)
     
     tornooi = Tornooi(players)
     tornooi.run()    
