@@ -9,6 +9,8 @@ import logging as log
 import itertools
 import bots
 import vieropeenrij as x4
+import timing
+import time
 
 #logging
 log.basicConfig(level=log.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -57,6 +59,7 @@ def calculateElo(players,scores):
                 
 class Tornooi:
     scores = {}
+    times = {}
     
     def __init__(self,players):
         self.players = players
@@ -82,7 +85,11 @@ class Tornooi:
         global K
         #reset scores
         for player in self.players:
-            self.scores[player] = 1200         
+            self.scores[player] = 1200
+        #reset times
+        for player in self.players:
+            self.times[player] = 0 
+        
         
         #run het tornooi x aantal keren
         for x in range(500):
@@ -96,10 +103,17 @@ class Tornooi:
             #shuffle games, startpositie kan bepalend zijn voor elo
             random.shuffle(games)
             for game in games:
-               self.playgame(game)     
+                start_time = time.time()
+                self.playgame(game) 
+                end_time = time.time() - start_time 
+                for player in game:
+                    self.times[player] += end_time 
                
         for speler in self.scores:
-            print(speler.name+' : '+str(self.scores[speler]))                 
+            print(speler.name+' : '+str(self.scores[speler])) 
+
+        for speler in self.times:
+            print(speler.name+' : '+str(self.times[speler]))                    
 
 def main():   
     players = []
@@ -124,5 +138,6 @@ def main():
     
 if __name__ == '__main__':
     main()
+    timing.endlog()
     
    

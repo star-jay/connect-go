@@ -79,7 +79,7 @@ class Game():
     moves = [] 
     players = []
     signs = {}
-    
+   
     def __init__(self,players):
         self.players = players
         #reset bord
@@ -118,11 +118,12 @@ class Game():
         for x in range(MAX_RANGE):
             
             if not self.move(active_player):
+                #illegal move
                 return LOSE,other_player,active_player
             else:
                 if controle_kolommen(self.state) or controle_rijen(self.state) or controle_diagonalen(self.state):
                     return WIN,active_player,other_player
-            #blijven spelen en spelrs omwisselen
+            #geen win is blijven spelen en spelers omwisselen
             active_player,other_player = other_player,active_player
         
         return DRAW,active_player,other_player
