@@ -91,19 +91,20 @@ class Game():
     
     def move(self,player):
         #speler maakt move
-        col = player.makeMove(self.state,self.signs[player])        
+        col = player.makeMove(self.state.copy(),self.signs[player])        
         
         #controle op legal move
         for x in range(ROWS):
             try:
                 veld = col + x*COLS
-                if self.state[veld] == NEUTRAL:
-                    #illegal move
-                   #log.debug(veld)
+                if self.state[veld] == NEUTRAL:                    
+                   
                    self.state[veld] = self.signs[player]
                    return True
+               
             except IndexError:
-                print (veld)
+                #illegal move, komt normaal niet voor
+                return False
            
         #kolom vol = illegal move
         return False
