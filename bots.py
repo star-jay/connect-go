@@ -7,7 +7,6 @@ Created on Tue Apr 24 15:28:18 2018
 
 import vieropeenrij as x4
 import random
-
           
 class Player():   
     
@@ -17,8 +16,8 @@ class Player():
     def className(self):
         return 'unknown'
         
-    def makeMove(self,game_state,sign):
-        #basic move 
+    def makeMove(self,game_state,moves,sign):
+        #basic move         
         return 0
     
 class BasicPlayer(Player):   
@@ -26,7 +25,7 @@ class BasicPlayer(Player):
     def className(self):
         return 'BasicPlayer'
         
-    def makeMove(self,game_state,sign):
+    def makeMove(self,game_state,moves,sign):
         #plaats in eerste kolom die nog niet vol is
         for x in range (x4.COLS):
             if game_state[(x4.ROWS-1)*x4.COLS + x] == x4.NEUTRAL:
@@ -37,7 +36,7 @@ class RandomPlayer(Player):
     def className(self):
         return 'RandomPlayer'
     
-    def makeMove(self,game_state,sign):
+    def makeMove(self,game_state,moves,sign):
         #basic move 
         while True:
            x = random.randint(0,x4.COLS-1)

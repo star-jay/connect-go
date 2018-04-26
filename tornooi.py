@@ -10,7 +10,6 @@ import itertools
 import bots
 import vieropeenrij as x4
 import timing
-import time
 
 #logging
 log.basicConfig(level=log.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -77,7 +76,7 @@ class Tornooi:
         #stakes(ELO)
         elo = calculateElo(players,self.scores)
         #play game
-        winorlose,winner,loser = x4.Game(players).play()
+        winorlose,winner,loser = x4.Game(players,self.times).play()
         #add scores
         self.addToScores(winorlose,winner,loser,elo)        
     
@@ -92,7 +91,7 @@ class Tornooi:
         
         
         #run het tornooi x aantal keren
-        for x in range(500):
+        for x in range(1):
             #ELO aanpassingen
             if x>100:
                 K = 24
@@ -102,16 +101,13 @@ class Tornooi:
             games = list(itertools.permutations(self.players,2)) 
             #shuffle games, startpositie kan bepalend zijn voor elo
             random.shuffle(games)
-            for game in games:
-                start_time = time.time()
-                self.playgame(game) 
-                end_time = time.time() - start_time 
-                for player in game:
-                    self.times[player] += end_time 
-               
+            for game in games:                
+                self.playgame(game)                 
+        
+        print('Scores : ')        
         for speler in self.scores:
             print(speler.name+' : '+str(self.scores[speler])) 
-
+        print('Times : ')        
         for speler in self.times:
             print(speler.name+' : '+str(self.times[speler]))                    
 
@@ -125,7 +121,7 @@ def main():
     players.append(bots.BasicPlayer('3.1'))
     players.append(bots.BasicPlayer('3.2'))
     players.append(bots.BasicPlayer('3.3'))
-    players.append(bots.BasicPlayer('3.4'))
+    players.append(bots.BasicPlayer('3.4'))    
     
     """
     ##VOEG HIER U BOT TOE##

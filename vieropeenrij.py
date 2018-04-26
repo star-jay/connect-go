@@ -6,6 +6,7 @@ Created on Tue Apr 24 15:22:19 2018
 """
 
 import logging as log
+import time
 
 #DIMENSIONS
 ROWS = 6
@@ -28,8 +29,8 @@ log.basicConfig(level=log.INFO, format='%(asctime)s - %(levelname)s - %(message)
 #controles
 
 def controle(rij):
-    for x in range(len(rij)-3):        
-        if rij[x:x+TARGET].count(rij[x]) >= TARGET and rij[x]!=NEUTRAL:            
+    for x in range(len(rij)-3):
+        if rij[x:x+TARGET].count(rij[x]) >= TARGET and rij[x]!=NEUTRAL:
             return True
         
 def controle_rijen(state):
@@ -73,55 +74,74 @@ def controle_diagonalen(state):
             log.debug('WIN op diagonaal-bergop {0!s} : {1!s}'.format(i+1,rij))   
             return True
         
+def controle_all(state):
+    return controle_kolommen(state) or controle_rijen(state) or controle_diagonalen(state)
+
+def revertsign(mySign):
+    if mySign == SIGNS[1]:
+        return SIGNS[2]
+    else:
+        return SIGNS[1]
+            
+        
+def addCoinTostate(state,col,sign):
+    for x in range(ROWS):
+        try:
+            veld = col + x*COLS
+            if state[veld] == NEUTRAL:                   
+               
+                state[veld] = sign
+                return True
+           
+        except IndexError:
+            #illegal move, komt normaal niet voor
+            return False
+       
+    #kolom vol = illegal move
+    return False
+        
 class Game():
     #list
     state = []
-    moves = [] 
-    players = []
-    signs = {}
+    moves = []     
+    signs = {}    
+       
    
-    def __init__(self,players):
+    def __init__(self,players,times):
         self.players = players
+        self.times = times
+        
         #reset bord
         self.state = [NEUTRAL for x in range(MAX_RANGE)]  
         #geef elke speler een teken        
         self.signs[players[0]] = SIGNS[1]
-        self.signs[players[1]] = SIGNS[2]    
+        self.signs[players[1]] = SIGNS[2]           
+               
     
     
     def move(self,player):
+        start_time = time.time()  
         #speler maakt move
-        col = player.makeMove(self.state.copy(),self.signs[player])        
+        col = player.makeMove(self.state.copy(),self.moves,self.signs[player])        
         
+        end_time = time.time() - start_time 
+        self.times[player] += end_time
         #controle op legal move
-        for x in range(ROWS):
-            try:
-                veld = col + x*COLS
-                if self.state[veld] == NEUTRAL:                    
-                   
-                   self.state[veld] = self.signs[player]
-                   return True
-               
-            except IndexError:
-                #illegal move, komt normaal niet voor
-                return False
-           
-        #kolom vol = illegal move
-        return False
+        
+        return addCoinTostate(self.state,col,self.signs[player])
+        
       
         
-    def play(self):
-                 
+    def play(self):         
         active_player = self.players[0]
         other_player = self.players[1]
         #maximum aantal zetten        
-        for x in range(MAX_RANGE):
-            
+        for x in range(MAX_RANGE):            
             if not self.move(active_player):
                 #illegal move
                 return LOSE,other_player,active_player
             else:
-                if controle_kolommen(self.state) or controle_rijen(self.state) or controle_diagonalen(self.state):
+                if controle_all(self.state):
                     return WIN,active_player,other_player
             #geen win is blijven spelen en spelers omwisselen
             active_player,other_player = other_player,active_player
