@@ -123,7 +123,7 @@ class Game():
         start_time = time.time()  
         #speler maakt move
         col = player.makeMove(self.state.copy(),self.moves,self.signs[player])        
-        
+        self.moves.append(col)
         end_time = time.time() - start_time 
         self.times[player] += end_time
         #controle op legal move
