@@ -10,8 +10,11 @@ import random
           
 class Player():   
     
-    def __init__(self,sufix):
-        self.name = self.className() +'.'+ sufix
+    def __init__(self,sufix=''):
+        if sufix != '':
+            self.name = self.className()            
+        else:
+            self.name = self.className() +' '+ sufix
         
     def className(self):
         return 'unknown'

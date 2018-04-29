@@ -11,10 +11,13 @@ import bots
 import vieropeenrij as x4
 import timing
 
+
 #logging
 log.basicConfig(level=log.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-#ELO
+#ELO & ranking
+AANTAL_GAMES = 500
+START_ELO = 1200
 K = 32
 
 def calculateElo(players,scores):
@@ -84,14 +87,14 @@ class Tornooi:
         global K
         #reset scores
         for player in self.players:
-            self.scores[player] = 1200
+            self.scores[player] = START_ELO
         #reset times
         for player in self.players:
             self.times[player] = 0 
         
         
         #run het tornooi x aantal keren
-        for x in range(1):
+        for x in range(AANTAL_GAMES):
             #ELO aanpassingen
             if x>100:
                 K = 24

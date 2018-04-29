@@ -15,13 +15,13 @@ MAX_RANGE = ROWS * COLS
 TARGET = 4
 
 #SIGNS
-SIGNS = ' ox'
-NEUTRAL = SIGNS[0]
+SIGNS = 'ox'
+NEUTRAL = ' '
 
 #RESULTS
 WIN = 1
-LOSE = 0
-DRAW = -1
+LOSE = -1
+DRAW = 0
 
 #logging
 log.basicConfig(level=log.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -79,7 +79,7 @@ def controle_all(state):
 
 def revertsign(mySign):
     if mySign == SIGNS[1]:
-        return SIGNS[2]
+        return SIGNS[0]
     else:
         return SIGNS[1]
             
@@ -101,28 +101,25 @@ def addCoinTostate(state,col,sign):
     return False
         
 class Game():
-    #list
-    state = []
-    moves = []     
-    signs = {}    
-       
    
     def __init__(self,players,times):
+        self.state = []
+        self.moves = []     
+        self.signs = {}
+        
         self.players = players
         self.times = times
         
         #reset bord
         self.state = [NEUTRAL for x in range(MAX_RANGE)]  
         #geef elke speler een teken        
-        self.signs[players[0]] = SIGNS[1]
-        self.signs[players[1]] = SIGNS[2]           
-               
-    
+        self.signs[players[0]] = SIGNS[0]
+        self.signs[players[1]] = SIGNS[1]
     
     def move(self,player):
         start_time = time.time()  
         #speler maakt move
-        col = player.makeMove(self.state.copy(),self.moves,self.signs[player])        
+        col = player.makeMove(self.state.copy(),self.moves.copy(),self.signs[player])        
         self.moves.append(col)
         end_time = time.time() - start_time 
         self.times[player] += end_time
