@@ -4,16 +4,15 @@ Created on Wed Mar 28 16:33:12 2018
 
 @author: Reinjan
 """
-import random 
 import logging as log
+#logging
+log.basicConfig(level=log.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+import random 
 import itertools
 import bots
 import vieropeenrij as x4
 import timing
-
-
-#logging
-log.basicConfig(level=log.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 #ELO & ranking
 AANTAL_GAMES = 500
@@ -118,13 +117,12 @@ def main():
     players = []
   
     #define players
-    players.append(bots.Player('1'))
-    players.append(bots.RandomPlayer('2.1'))
-    players.append(bots.RandomPlayer('2.2'))
-    players.append(bots.BasicPlayer('3.1'))
-    players.append(bots.BasicPlayer('3.2'))
-    players.append(bots.BasicPlayer('3.3'))
-    players.append(bots.BasicPlayer('3.4'))    
+    players.append(bots.Player())
+    players.append(bots.RandomPlayer())
+    players.append(bots.BasicPlayer())
+    players.append(bots.MirrorBot())    
+    players.append(bots.CopyBot()) 
+    players.append(bots.ImprovedRandomPlayer())
     
     """
     ##VOEG HIER U BOT TOE##
