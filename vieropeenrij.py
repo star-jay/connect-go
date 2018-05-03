@@ -135,46 +135,66 @@ class Game():
    
     def __init__(self,players,times):
         self.state = []
-        self.moves = []     
-        self.signs = {}
+        self.moves = []            
         
         self.players = players
         self.times = times
         
         #reset bord
         self.state = [NEUTRAL for x in range(MAX_RANGE)]  
-        #geef elke speler een teken        
-        self.signs[players[0]] = SIGNS[0]
-        self.signs[players[1]] = SIGNS[1]
+        
+        #geef elke speler een teken   
+        self.players[0].startgame(SIGNS[0])
+        self.players[1].startgame(SIGNS[1])
+        
+        #☺self.signs[players[0]] = SIGNS[0]
+        #self.signs[players[1]] = SIGNS[1]
+    
     
     def move(self,player):
         start_time = time.time()  
         #speler maakt move
-        col = player.makeMove(self.state.copy(),self.moves.copy(),self.signs[player])        
+        col = player.makeMove(self.state.copy(),self.moves.copy())        
         self.moves.append(col)
         end_time = time.time() - start_time 
         self.times[player] += end_time
         #controle op legal move
-        log.debug(self.signs[player]+':'+str(col))
-        return addCoinTostate(self.state,col,self.signs[player])
-        
+        log.debug(player.sign+':'+str(col))
+        return addCoinTostate(self.state,col,player.sign)
       
         
-    def play(self):         
-        active_player = self.players[0]
-        other_player = self.players[1]
-        #maximum aantal zetten        
-        for x in range(MAX_RANGE):            
-            if not self.move(active_player):
-                #illegal move
-                return LOSE,other_player,active_player
-            else:
-                if controle_all(self.state):
+    def play(self):       
+        def playthrough(): 
+            #wie begint er
+            active_player = self.players[0]
+            other_player = self.players[1]
+            #maximum aantal zetten        
+            for x in range(MAX_RANGE):            
+                if not self.move(active_player):
+                    #illegal move
+                    return LOSE,other_player,active_player
+                elif controle_all(self.state):
                     return WIN,active_player,other_player
-            #geen win is blijven spelen en spelers omwisselen
-            active_player,other_player = other_player,active_player
+                #geen win is blijven spelen en spelers omwisselen
+                active_player,other_player = other_player,active_player
+                
+            return DRAW,active_player,other_player
         
-        return DRAW,active_player,other_player
+        #bepaal wie wint door spel te spelen
+        winorlose,winner,loser = playthrough()   
+        
+        #stuur eindresultaat naar spelers
+        if winorlose == DRAW:
+            winner.endgame(DRAW,self.state,self.moves)
+            loser.endgame(DRAW,self.state,self.moves)
+        else:
+            winner.endgame(WIN,self.state,self.moves)
+            loser.endgame(LOSE,self.state,self.moves)
+            
+        #return resultaat    
+        return winorlose,winner,loser
+        
+        
     
     
 def print_rijen(state):

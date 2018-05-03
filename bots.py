@@ -16,16 +16,24 @@ class Player():
     def className(self):
         return 'unknown'
         
-    def makeMove(self,game_state,moves,sign):
+    def makeMove(self,game_state,moves):
         #basic move         
         return 0
+    
+    def startgame(self,sign):
+        #basic move         
+        self.sign = sign
+        
+    def endgame(self,winorlose,game_state,moves):
+        
+        return
     
 class BasicPlayer(Player):   
     
     def className(self):
         return 'BasicPlayer'
         
-    def makeMove(self,game_state,moves,sign):
+    def makeMove(self,game_state,moves):
         #plaats in eerste kolom die nog niet vol is
         for x in range (x4.COLS):
             if game_state[(x4.ROWS-1)*x4.COLS + x] == x4.NEUTRAL:
@@ -36,7 +44,7 @@ class RandomPlayer(Player):
     def className(self):
         return 'RandomPlayer'
     
-    def makeMove(self,game_state,moves,sign):
+    def makeMove(self,game_state,moves):
         #basic move 
         cols = []
         cols.extend(range(0,6))
@@ -57,7 +65,7 @@ class ImprovedRandomPlayer(Player):
             if x4.controle(rij):                
                 return True
     
-    def makeMove(self,game_state,moves,sign):
+    def makeMove(self,game_state,moves):
         #basic move 
         cols = []
         cols.extend(range(0,x4.COLS-1))
@@ -65,7 +73,7 @@ class ImprovedRandomPlayer(Player):
         #eerst controleren of je kan winnen met bepaalde move
         for col in cols:
             temp_state = game_state.copy()
-            x4.addCoinTostate(temp_state,col,sign)
+            x4.addCoinTostate(temp_state,col,self.sign)
             if x4.controle_all(temp_state):
                 return col
         
@@ -81,7 +89,7 @@ class CopyBot(Player):
     def className(self):
         return 'CopyBot'
     
-    def makeMove(self,game_state,moves,sign):
+    def makeMove(self,game_state,moves):
         #basic move 
         if len(moves) == 0:
            return  random.randint(0,x4.COLS-1)
@@ -93,7 +101,7 @@ class MirrorBot(Player):
     def className(self):
         return 'MirrorBot'
     
-    def makeMove(self,game_state,moves,sign):
+    def makeMove(self,game_state,moves):
         if len(moves) == 0:
            return  random.randint(0,x4.COLS-1)
         else:            

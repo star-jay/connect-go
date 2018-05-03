@@ -13,9 +13,12 @@ import itertools
 import bots
 import vieropeenrij as x4
 import timing
+import MyBots
+import MonteCarlo
+
 
 #ELO & ranking
-AANTAL_GAMES = 500
+AANTAL_GAMES = 50
 START_ELO = 1200
 K = 32
 
@@ -78,7 +81,9 @@ class Tornooi:
         #stakes(ELO)
         elo = calculateElo(players,self.scores)
         #play game
-        winorlose,winner,loser = x4.Game(players,self.times).play()
+        game = x4.Game(players,self.times)
+        winorlose,winner,loser = game.play()   
+        
         #add scores
         self.addToScores(winorlose,winner,loser,elo)        
     
@@ -123,6 +128,10 @@ def main():
     players.append(bots.MirrorBot())    
     players.append(bots.CopyBot()) 
     players.append(bots.ImprovedRandomPlayer())
+    
+    players.append(MyBots.BotToBeat())
+    players.append(MonteCarlo.MonteCarlo())
+
     
     """
     ##VOEG HIER U BOT TOE##
