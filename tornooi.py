@@ -13,12 +13,11 @@ import itertools
 import bots
 import vieropeenrij as x4
 import timing
-import MyBots
-import MonteCarlo
+import matplotlib.pyplot as plt
 
 
 #ELO & ranking
-AANTAL_GAMES = 50
+AANTAL_GAMES = 500
 START_ELO = 1200
 K = 32
 
@@ -64,6 +63,7 @@ def calculateElo(players,scores):
 class Tornooi:
     scores = {}
     times = {}
+    chart = []
     
     def __init__(self,players):
         self.players = players
@@ -85,13 +85,24 @@ class Tornooi:
         winorlose,winner,loser = game.play()   
         
         #add scores
-        self.addToScores(winorlose,winner,loser,elo)        
+        self.addToScores(winorlose,winner,loser,elo)    
+        
+    def saveScores(self):
+        self.chart.append(list(self.scores.values()))   
+        
+    def plot(self):       
+
+        plt.plot(self.chart)
+        plt.ylabel('scores')
+        plt.show()  
     
     def run(self):
         global K
         #reset scores
         for player in self.players:
             self.scores[player] = START_ELO
+        #startscores    
+        self.saveScores()
         #reset times
         for player in self.players:
             self.times[player] = 0 
@@ -100,23 +111,31 @@ class Tornooi:
         #run het tornooi x aantal keren
         for x in range(AANTAL_GAMES):
             #ELO aanpassingen
-            if x>100:
+            if x>20:
                 K = 24
-            if x>300:
+            if x>100:
                 K = 16
+            if x>200:
+                K = 8
             
             games = list(itertools.permutations(self.players,2)) 
             #shuffle games, startpositie kan bepalend zijn voor elo
             random.shuffle(games)
             for game in games:                
-                self.playgame(game)                 
+                self.playgame(game)   
+                
+            self.saveScores()
         
         print('Scores : ')        
         for speler in self.scores:
             print(speler.name+' : '+str(self.scores[speler])) 
         print('Times : ')        
         for speler in self.times:
-            print(speler.name+' : '+str(self.times[speler]))                    
+            print(speler.name+' : '+str(self.times[speler]))
+
+        self.plot()
+       
+                         
 
 def main():   
     players = []
@@ -129,13 +148,9 @@ def main():
     players.append(bots.CopyBot()) 
     players.append(bots.ImprovedRandomPlayer())
     
-    players.append(MyBots.BotToBeat())
-    players.append(MonteCarlo.MonteCarlo())
-
-    
     """
     ##VOEG HIER U BOT TOE##
-    #players.append(bots.MyPlayer('4'))   
+    #players.append(bots.MyPlayer()   
     """
     
     #start tornooi
