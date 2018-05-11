@@ -17,8 +17,6 @@ import bots
 import vieropeenrij as x4
 import timing
 
-
-
 #ELO & ranking
 START_ELO = 1200
 C = 400
@@ -122,13 +120,25 @@ class Tornooi:
     def saveScores(self):
         self.chart.append(list(self.scores.values()))   
         
-    def plot(self):       
-
-        plt.plot(self.chart)
-        plt.ylabel('scores')
-        plt.show()  
+    def plot(self):  
         
-
+        legends = []
+        for player in self.players:            
+            legends.append(player.className())
+        plot = plt.plot(self.chart)
+        plt.ylabel('ELO')
+        plt.xlabel('games')
+        plt.legend(plot, legends)
+        
+        #configure plot
+        fig_size = plt.rcParams["figure.figsize"]         
+        #print ("Current size:", fig_size)         
+        # Set figure width to 12 and height to 9
+        fig_size[0] = 12
+        fig_size[1] = 9
+        plt.rcParams["figure.figsize"] = fig_size
+                
+        plt.show()  
         
     def playTheGames(self):
         p = Pool(4)       
@@ -150,7 +160,7 @@ class Tornooi:
 
             self.saveScores()
         return len(games)*self.aantal_rondes
-    
+
     def run(self):
         global K
         #reset scores
@@ -192,18 +202,22 @@ def main():
     players.append(bots.MirrorBot())    
     players.append(bots.CopyBot()) 
     players.append(bots.ImprovedRandomPlayer())
-    
+    players.append(bots.BasicPlayer())
+
     """
     ##VOEG HIER U BOT TOE##
     #players.append(bots.MyPlayer()   
     """
     
     #start tornooi
+
     tornooi = Tornooi(players,aantal_rondes)
-    tornooi.run()    
+    tornooi.run()       
+    timing.endlog()
+
     
 if __name__ == '__main__':
     main()
-    timing.endlog()
+
     
    

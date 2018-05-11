@@ -69,7 +69,7 @@ class ImprovedRandomPlayer(Player):
     def makeMove(self,game_state,moves):
         #basic move 
         cols = []
-        cols.extend(range(0,x4.COLS-1))
+        cols.extend(range(0,x4.COLS))
         
         #eerst controleren of je kan winnen met bepaalde move
         for col in cols:
