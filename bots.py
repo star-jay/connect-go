@@ -7,6 +7,7 @@ Created on Tue Apr 24 15:28:18 2018
 
 import vieropeenrij as x4
 import random
+
           
 class Player():   
     
@@ -51,7 +52,7 @@ class RandomPlayer(Player):
         random.shuffle(cols)
            #x = random.randint(0,x4.COLS-1)
         for col in cols:
-            if game_state[x4.MAX_RANGE - (x4.COLS-col-1)] == x4.NEUTRAL:            
+            if game_state[x4.MAX_RANGE - (x4.COLS-col)] == x4.NEUTRAL:            
                 return col
             
 class ImprovedRandomPlayer(Player):
@@ -80,7 +81,7 @@ class ImprovedRandomPlayer(Player):
         #anders random col
         random.shuffle(cols)           
         for col in cols:
-            if game_state[x4.MAX_RANGE - (x4.COLS-col-1)] == x4.NEUTRAL:
+            if game_state[x4.MAX_RANGE - (x4.COLS-col)] == x4.NEUTRAL:
             #if game_state[(x4.ROWS-1)*x4.COLS + x] == x4.NEUTRAL:
                 return col
              
@@ -92,7 +93,7 @@ class CopyBot(Player):
     def makeMove(self,game_state,moves):
         #basic move 
         if len(moves) == 0:
-           return  random.randint(0,x4.COLS-1)
+           return  random.randint(0,x4.COLS)
         else:
             return moves.pop()
         
@@ -103,7 +104,7 @@ class MirrorBot(Player):
     
     def makeMove(self,game_state,moves):
         if len(moves) == 0:
-           return  random.randint(0,x4.COLS-1)
+           return  random.randint(0,x4.COLS)
         else:            
             move = moves.pop()
             return (x4.COLS-1) - move

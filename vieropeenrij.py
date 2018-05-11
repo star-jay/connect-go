@@ -133,12 +133,15 @@ def addCoinTostate(state,col,sign):
         
 class Game():
    
-    def __init__(self,players,times):
+    def __init__(self,players):
         self.state = []
         self.moves = []            
         
         self.players = players
-        self.times = times
+        
+        self.times = {}
+        for player in players:
+            self.times[player.className()] = 0
         
         #reset bord
         self.state = [NEUTRAL for x in range(MAX_RANGE)]  
@@ -157,7 +160,7 @@ class Game():
         col = player.makeMove(self.state.copy(),self.moves.copy())        
         self.moves.append(col)
         end_time = time.time() - start_time 
-        self.times[player] += end_time
+        self.times[player.className()] += end_time
         #controle op legal move
         log.debug(player.sign+':'+str(col))
         return addCoinTostate(self.state,col,player.sign)
@@ -192,7 +195,7 @@ class Game():
             loser.endgame(LOSE,self.state,self.moves)
             
         #return resultaat    
-        return winorlose,winner,loser
+        return winorlose,winner,loser,self.times
         
         
     
