@@ -10,12 +10,14 @@ log.basicConfig(level=log.INFO, format='%(asctime)s - %(levelname)s - %(message)
 
 import random 
 import itertools
-from multiprocessing import Pool
+
 import matplotlib.pyplot as plt
 
 import bots
 import vieropeenrij as x4
 import timing
+
+from multiprocessing import Pool
 
 #ELO & ranking
 START_ELO = 1200
@@ -50,6 +52,8 @@ def f(args):
     return cols[:amount]
 
 def playgame(args): 
+    #print( len(args))
+    #game,elo = args
     player1,player2,elo = args
     #play game
     game = x4.Game((player1,player2,))
@@ -141,24 +145,25 @@ class Tornooi:
         plt.show()  
         
     def playTheGames(self):
-        p = Pool(4)       
-        for x in range(self.aantal_rondes):
-            adjustK(x)               
-                 
-            games = list(itertools.permutations(self.players,2)) 
-            #shuffle games, startpositie kan bepalend zijn voor elo
-            random.shuffle(games)              
-            games = [ game+(calculateElo(game,self.scores),) for game in games ]
-            
-           
-            results = p.map(playgame, games)
-            for result in results:            
-                winorlose,winner,loser,times,elo = result
-                self.addToScores(self.scores,winorlose,winner,loser,elo) 
-                for player in times:
-                    self.times[player] += times[player]
-
-            self.saveScores()
+        with Pool(4) as p:       
+            for x in range(self.aantal_rondes):
+                adjustK(x)               
+                     
+                games = list(itertools.permutations(self.players,2)) 
+                #shuffle games, startpositie kan bepalend zijn voor elo
+                random.shuffle(games)              
+                games = [ game+(calculateElo(game,self.scores),) for game in games ] 
+                results = p.map(playgame, games)                
+                
+                #for game in games:                
+                #    results.append(playgame(game))
+                for result in results:            
+                    winorlose,winner,loser,times,elo = result
+                    self.addToScores(self.scores,winorlose,winner,loser,elo) 
+                    for player in times:
+                        self.times[player] += times[player]
+    
+                self.saveScores()
         return len(games)*self.aantal_rondes
 
     def run(self):
