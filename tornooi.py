@@ -145,24 +145,37 @@ class Tornooi:
         plt.show()  
         
     def playTheGames(self):
+		def run_pool(pool,games):
+            return = p.map(playgame, games) 
+		def run_sync(games):
+			results = []
+			for game in games:                
+                results.append(playgame(game))
+            return = results
+			
+		all_combinations = list(itertools.permutations(self.players,2))
         with Pool(4) as p:       
             for x in range(self.aantal_rondes):
-                adjustK(x)               
-                     
-                games = list(itertools.permutations(self.players,2)) 
+				#elo bepalen adhv van speler niet, aantal rondes
+                adjustK(x)
                 #shuffle games, startpositie kan bepalend zijn voor elo
-                random.shuffle(games)              
-                games = [ game+(calculateElo(game,self.scores),) for game in games ] 
-                results = p.map(playgame, games)                
-                
-                #for game in games:                
-                #    results.append(playgame(game))
-                for result in results:            
+                random.shuffle(all_combinations)  
+				#te winnen ELO toevoegen aan game	
+                games = [ game+(calculateElo(game,self.scores),) for game in all_combinations ] 
+				
+				#games uitvoeren in thread pool
+                #results = run_pool(p,games)
+				#games synchroon uitvoeren
+                results = run_sync(p,games)
+				
+                for result in results:  
+					#result uitpakken
                     winorlose,winner,loser,times,elo = result
                     self.addToScores(self.scores,winorlose,winner,loser,elo) 
                     for player in times:
                         self.times[player] += times[player]
     
+				#huidige elo ranking opslaan
                 self.saveScores()
         return len(games)*self.aantal_rondes
 
@@ -197,7 +210,7 @@ class Tornooi:
                          
 
 def main():   
-    aantal_rondes = 500
+    aantal_rondes = 10
     players = []
   
     #define players
