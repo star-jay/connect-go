@@ -15,7 +15,9 @@ import matplotlib.pyplot as plt
 
 import bots
 import vieropeenrij as x4
+import graphic
 from multiprocessing import Pool
+
 
 #ELO & ranking
 START_ELO = 1200
@@ -240,7 +242,10 @@ def main():
     tornooi = Tornooi(players,aantal_rondes)
     tornooi.run()       
     timing.endlog()
-
+    
+    #run na het tornooi een random game tussen twee deelnemers
+    game = graphic.GraphicGame(tornooi.all_combinations.pop())
+    game.play()
     
 if __name__ == '__main__':
     main()
