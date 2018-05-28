@@ -42,7 +42,9 @@ class EmielsPlayer(bots.Player):
                 if game_state[slotNr +x] == x4.NEUTRAL:
                     return (slotNr +x) % 7 
                 
-    def blockNodig(self, game_state, slotNr):        
+    def blockNodig(self, game_state, slotNr):      
+        #Werkt nog niet
+        return None
         offsets = [-8, -7, -6, -1, +1, +6, +7, +8]
         for x in offsets:
             if slotNr + x > 0 and slotNr +x < len(game_state) -1:
