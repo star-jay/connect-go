@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 import bots
 import vieropeenrij as x4
-import timing
+
 
 from multiprocessing import Pool
 
@@ -145,35 +145,35 @@ class Tornooi:
         plt.show()  
         
     def playTheGames(self):
-		def run_pool(pool,games):
-            return = p.map(playgame, games) 
-		def run_sync(games):
-			results = []
-			for game in games:                
+        def run_pool(pool,games):
+            return p.map(playgame, games) 
+        def run_sync(games):
+            results = []
+            for game in games:                
                 results.append(playgame(game))
-            return = results
+            return results
 			
-		all_combinations = list(itertools.permutations(self.players,2))
-        with Pool(4) as p:       
-            for x in range(self.aantal_rondes):
+        all_combinations = list(itertools.permutations(self.players,2))
+        p = Pool(4)       
+        for x in range(self.aantal_rondes):
 				#elo bepalen adhv van speler niet, aantal rondes
-                adjustK(x)
-                #shuffle games, startpositie kan bepalend zijn voor elo
-                random.shuffle(all_combinations)  
+            adjustK(x)
+            #shuffle games, startpositie kan bepalend zijn voor elo
+            random.shuffle(all_combinations)  
 				#te winnen ELO toevoegen aan game	
-                games = [ game+(calculateElo(game,self.scores),) for game in all_combinations ] 
+            games = [ game+(calculateElo(game,self.scores),) for game in all_combinations ] 
 				
 				#games uitvoeren in thread pool
-                #results = run_pool(p,games)
+            #results = run_pool(p,games)
 				#games synchroon uitvoeren
-                results = run_sync(p,games)
+            results = run_sync(games)
 				
-                for result in results:  
+            for result in results:  
 					#result uitpakken
-                    winorlose,winner,loser,times,elo = result
-                    self.addToScores(self.scores,winorlose,winner,loser,elo) 
-                    for player in times:
-                        self.times[player] += times[player]
+                winorlose,winner,loser,times,elo = result
+                self.addToScores(self.scores,winorlose,winner,loser,elo) 
+                for player in times:
+                    self.times[player] += times[player]
     
 				#huidige elo ranking opslaan
                 self.saveScores()
@@ -210,22 +210,23 @@ class Tornooi:
                          
 
 def main():   
-    aantal_rondes = 10
+    import timing
+    aantal_rondes = 50
     players = []
   
     #define players
-    players.append(bots.Player())
-    players.append(bots.RandomPlayer())
+    players.append(bots.Player())    
     players.append(bots.BasicPlayer())
     players.append(bots.MirrorBot())    
     players.append(bots.CopyBot()) 
     players.append(bots.ImprovedRandomPlayer())
-    players.append(bots.BasicPlayer())
-
-    """
+    
+    import ReinjanBots
+    import EmielsBots
+    
     ##VOEG HIER U BOT TOE##
-    #players.append(bots.MyPlayer()   
-    """
+    players.append(EmielsBots.EmielsPlayer())   
+    players.append(ReinjanBots.BotToBeat2())  
     
     #start tornooi
 
