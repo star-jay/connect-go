@@ -64,14 +64,14 @@ def controle_all(state):
             return True
 
 def controle_rijen(state):
-    for i in range(6):        
+    for i in range(ROWS):        
         rij = list (x for x in state[i*COLS:i*COLS+COLS])
         if controle(rij):
             log.debug('WIN op rij {0!s} : {1!s}'.format(i+1,rij))
             return True         
         
 def controle_kolommen(state):
-    for i in range(7):
+    for i in range(COLS):
         rij = list (x for x in state[i::COLS])        
         if controle(rij):
             log.debug('WIN op kolom {0!s} : {1!s}'.format(i+1,rij))  

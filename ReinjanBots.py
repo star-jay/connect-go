@@ -10,7 +10,6 @@ import bots
 import random
 
 import logging as log
-import tornooi
 #logging
 log.basicConfig(level=log.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 

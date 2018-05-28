@@ -15,8 +15,6 @@ import matplotlib.pyplot as plt
 
 import bots
 import vieropeenrij as x4
-
-
 from multiprocessing import Pool
 
 #ELO & ranking
@@ -106,6 +104,11 @@ class Tornooi:
         self.chart = []
         self.players = players
         self.aantal_rondes = aantal_rondes
+        self.all_combinations = list(itertools.permutations(self.players,2))
+        
+        #matchups = {combi,(0,0,0) for combi in self.all_combinations}
+        
+            
         
     def addToScores(self,scores,winorlose,winner,loser,elo):  
         try:
@@ -127,8 +130,9 @@ class Tornooi:
     def plot(self):  
         
         legends = []
-        for player in self.players:            
+        for player in self.players:                
             legends.append(player.className())
+            
         plot = plt.plot(self.chart)
         plt.ylabel('ELO')
         plt.xlabel('games')
@@ -152,16 +156,15 @@ class Tornooi:
             for game in games:                
                 results.append(playgame(game))
             return results
-			
-        all_combinations = list(itertools.permutations(self.players,2))
+			        
         p = Pool(4)       
         for x in range(self.aantal_rondes):
 				#elo bepalen adhv van speler niet, aantal rondes
             adjustK(x)
             #shuffle games, startpositie kan bepalend zijn voor elo
-            random.shuffle(all_combinations)  
+            random.shuffle(self.all_combinations)  
 				#te winnen ELO toevoegen aan game	
-            games = [ game+(calculateElo(game,self.scores),) for game in all_combinations ] 
+            games = [ game+(calculateElo(game,self.scores),) for game in self.all_combinations ] 
 				
 				#games uitvoeren in thread pool
             #results = run_pool(p,games)
@@ -182,10 +185,13 @@ class Tornooi:
     def run(self):
         global K
         #reset scores
-        for player in self.players:
+        for player in self.players:            
             self.scores[player.className()] = START_ELO
+            
+        
         #startscores    
         self.saveScores()
+        
         #reset times
         for player in self.players:
             self.times[player.className()] = 0 
@@ -210,6 +216,7 @@ class Tornooi:
                          
 
 def main():   
+
     import timing
     aantal_rondes = 50
     players = []
@@ -218,12 +225,12 @@ def main():
     players.append(bots.Player())    
     players.append(bots.BasicPlayer())
     players.append(bots.MirrorBot())    
-    players.append(bots.CopyBot()) 
+    players.append(bots.RandomPlayer()) 
     players.append(bots.ImprovedRandomPlayer())
     
     import ReinjanBots
     import EmielsBots
-    
+
     ##VOEG HIER U BOT TOE##
     players.append(EmielsBots.EmielsPlayer())   
     players.append(ReinjanBots.BotToBeat2())  
