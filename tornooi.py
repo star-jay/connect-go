@@ -12,10 +12,11 @@ import random
 import itertools
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 import bots
 import vieropeenrij as x4
-import graphic
+#import graphic
 from multiprocessing import Pool
 
 
@@ -61,7 +62,7 @@ def playgame(args):
     #winorlose,winner,loser = 
     #add scores
     #self.addToScores(winorlose,winner,loser,elo)    
-    return game.play()+(elo,)   
+    return game.play()+(player1,player2,elo,)   
     
 
 def calculateElo(players,scores):
@@ -106,13 +107,21 @@ class Tornooi:
         self.chart = []
         self.players = players
         self.aantal_rondes = aantal_rondes
+        
         self.all_combinations = list(itertools.permutations(self.players,2))
         
-        #matchups = {combi,(0,0,0) for combi in self.all_combinations}
+        #configure plot
+        fig_size = plt.rcParams["figure.figsize"]         
+        #print ("Current size:", fig_size)         
+        # Set figure width to 12 and height to 9
+        fig_size[0] = 12
+        fig_size[1] = 9
+        plt.rcParams["figure.figsize"] = fig_size
         
             
         
-    def addToScores(self,scores,winorlose,winner,loser,elo):  
+    def addToScores(self,scores,winorlose,winner,loser,elo):
+        #Elo
         try:
             if winorlose==x4.DRAW :
                 log.debug('gelijkspel')
@@ -123,7 +132,15 @@ class Tornooi:
                 scores[loser.className()]  += elo[loser][x4.LOSE]
         except KeyError as e:
             log.error('I got an IndexError - reason "%s"' % str(e))
-        
+            
+    def addToMatchup(self,player1,player2,winner,winorlose):
+        g,w,l = self.matchups[(player1.className(),player2.className())]                  
+        g += 1
+        if winner == player1:
+            w += 1
+        else:
+            l += 1
+        self.matchups[(player1.className(),player2.className())] = g,w,l        
         
         
     def saveScores(self):
@@ -137,18 +154,49 @@ class Tornooi:
             
         plot = plt.plot(self.chart)
         plt.ylabel('ELO')
-        plt.xlabel('games')
+        plt.xlabel('Rondes')
         plt.legend(plot, legends)
-        
-        #configure plot
-        fig_size = plt.rcParams["figure.figsize"]         
-        #print ("Current size:", fig_size)         
-        # Set figure width to 12 and height to 9
-        fig_size[0] = 12
-        fig_size[1] = 9
-        plt.rcParams["figure.figsize"] = fig_size
-                
         plt.show()  
+        
+    def heatmap(self):          
+        m = []
+        for first in self.players:
+            l = []
+            for second in self.players:
+                if first == second:
+                    l.append(np.nan)
+                else:
+                    g,w,lo = self.matchups[(first.className(),second.className())]
+                    l.append(w / g )
+            m.append(l)
+            
+        matchups = np.array(m)
+        
+        fig, ax = plt.subplots()
+        im = ax.imshow(matchups)
+        
+        # We want to show all ticks...
+        ax.set_xticks(np.arange(len(self.players)))
+        ax.set_yticks(np.arange(len(self.players)))
+        # ... and label them with the respective list entries
+        ax.set_xticklabels(player.className() for player in self.players)
+        ax.set_yticklabels(player.className() for player in self.players)
+        
+        ax.xaxis.tick_top()
+        
+        # Rotate the tick labels and set their alignment.
+        plt.setp(ax.get_xticklabels(), rotation=-45, ha="right",
+                 rotation_mode="anchor")
+        
+        # Loop over data dimensions and create text annotations.
+        for i in range(len(self.players)):
+            for j in range(len(self.players)):
+                text = ax.text(j, i, matchups[i, j],
+                               ha="center", va="center", color="w")
+        
+        ax.set_title("Matchups (linker speler begint)",y=1.2)
+        fig.tight_layout()
+        plt.show()
         
     def playTheGames(self):
         def run_pool(pool,games):
@@ -168,39 +216,47 @@ class Tornooi:
 				#te winnen ELO toevoegen aan game	
             games = [ game+(calculateElo(game,self.scores),) for game in self.all_combinations ] 
 				
-				#games uitvoeren in thread pool
+			  #games uitvoeren in thread pool
             #results = run_pool(p,games)
-				#games synchroon uitvoeren
+            #games synchroon uitvoeren
             results = run_sync(games)
 				
             for result in results:  
 					#result uitpakken
-                winorlose,winner,loser,times,elo = result
+                winorlose,winner,loser,times,player1,player2,elo = result
+                #elo optellen
                 self.addToScores(self.scores,winorlose,winner,loser,elo) 
+                #matchups bewerken
+                self.addToMatchup(player1,player2,winner,winorlose)
+                
+                
                 for player in times:
                     self.times[player] += times[player]
     
 				#huidige elo ranking opslaan
-                self.saveScores()
+            self.saveScores()
         return len(games)*self.aantal_rondes
 
     def run(self):
         global K
         #reset scores
         for player in self.players:            
-            self.scores[player.className()] = START_ELO
-            
+            self.scores[player.className()] = START_ELO    
         
-        #startscores    
-        self.saveScores()
-        
+        #reset matchup
+        self.matchups = {(combi[0].className(),combi[1].className()):(0,0,0) for combi in self.all_combinations}
+                
         #reset times
         for player in self.players:
             self.times[player.className()] = 0 
+            
+        #startscores    
+        self.saveScores()
         
-        
+        #speel tornooi
         games_played = self.playTheGames()
         
+        #resultaten
         print('Tornooi finnished') 
         print('Games played : ' + str(games_played))
         print()
@@ -214,13 +270,14 @@ class Tornooi:
             print(speler+' : '+str(round(self.times[speler],2)))
 
         self.plot()
+        self.heatmap()
        
                          
 
 def main():   
 
     import timing
-    aantal_rondes = 50
+    aantal_rondes = 100
     players = []
   
     #define players
@@ -244,8 +301,8 @@ def main():
     timing.endlog()
     
     #run na het tornooi een random game tussen twee deelnemers
-    game = graphic.GraphicGame(tornooi.all_combinations.pop())
-    game.play()
+    #game = graphic.GraphicGame(tornooi.all_combinations.pop())
+    #game.play()
     
 if __name__ == '__main__':
     main()

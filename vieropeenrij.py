@@ -23,6 +23,26 @@ WIN = 1
 LOSE = -1
 DRAW = 0
 
+def test():    
+    #testfunctie die alle mogelijke combinatie uitprobeert
+    import itertools
+    #empty field
+    state = [NEUTRAL for x in range(MAX_RANGE)] 
+    #
+    list_of_fields = list(x for x in range(MAX_RANGE))    
+    combinations = list(itertools.combinations(list_of_fields,TARGET))
+    
+    for combi in combinations:
+        #start from empty state
+        test_state = state.copy()        
+        for field in combi:
+            #set to sign
+            test_state[field] = SIGNS[0]
+        #test if combination is connected   
+        if controle_all(test_state):
+            print(combi)
+            print(print_rijen(test_state))   
+
 #controles
 def listRijen(state):
     rijen = []
@@ -33,7 +53,7 @@ def listRijen(state):
     
     #kolommen    
     for i in range(COLS):
-        rijen.append( list (x for x in state[i::COLS])) 
+       rijen.append( list (x for x in state[i::COLS])) 
         
     #digonaal positieve offset       
     for i in range(COLS-(TARGET-1)):             
@@ -43,13 +63,13 @@ def listRijen(state):
     for i in range(0,ROWS-TARGET):        
         rijen.append( list (state[COLS*(i+1)::COLS + 1 ])) 
         
-    #diagonaal negatieve offset     
-    for i in range(COLS-(TARGET-1)):             
-        rijen.append( list (state[i+TARGET:COLS*(COLS-i):COLS - 1 ]))       
+    #diagonaal negatieve offset
+    for i in range(COLS-TARGET + 1):             
+        rijen.append( list (state[i+TARGET-1 : (i+TARGET-1) * COLS +1  : COLS-1 ]))       
 
         
     for i in range(1,ROWS-TARGET+1):        
-        rijen.append( list (state[COLS*(i+1)-1::COLS - 1 ]))       
+       rijen.append( list (state[COLS*(i+1)-1::COLS - 1 ]))       
     
     return rijen
 
@@ -195,10 +215,7 @@ class Game():
             loser.endgame(LOSE,self.state,self.moves)
             
         #return resultaat    
-        return winorlose,winner,loser,self.times
-        
-        
-    
+        return winorlose,winner,loser,self.times    
     
 def print_rijen(state):
     rij = ''
@@ -225,4 +242,8 @@ def print_diagonalen(state):
     for i in range(1,ROWS-TARGET+1):        
         rij = list (state[COLS*(i+1)-1::COLS - 1 ])       
     return(''.join(str(rij)))    
+    
+if __name__ == '__main__':
+    test()
+
         
