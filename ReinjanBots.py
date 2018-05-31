@@ -29,17 +29,12 @@ class ImprovedPlayer(bots.Player):
         if len(moves) < 6:
             return 0
 
-    def random_move(self,game_state):
-        cols = []
-        cols.extend(range(0,x4.COLS))
+    def random_move(self,game_state,cols):        
         random.shuffle(cols)
-        for col in cols:
-            if game_state[x4.MAX_RANGE - (x4.COLS-col)] == x4.NEUTRAL:
-            #if game_state[(x4.ROWS-1)*x4.COLS + x] == x4.NEUTRAL:
-                return col        
+        return cols.pop()        
             
     #zoek winnende move        
-    def findCol(self,game_state,moves):
+    def findCol(self,game_state,moves,cols):
         #geen winnenende logica
         return 
     
@@ -49,13 +44,17 @@ class ImprovedPlayer(bots.Player):
         if col != None:
             return col
         
+        cols = []
+        for x in range(x4.COLS):
+            if game_state[x4.MAX_RANGE +x -x4.COLS] == x4.NEUTRAL:
+                cols.append(x)
         #winning moves
-        col = self.findCol(game_state,moves)
+        col = self.findCol(game_state,moves,cols)
         if col != None:
             return col
 
         #random kolom
-        return self.random_move(game_state)
+        return self.random_move(game_state,cols)
     
 class Simulator(ImprovedPlayer):
     
@@ -67,10 +66,8 @@ class Simulator(ImprovedPlayer):
         if len(moves) < 6:
             return self.random_move(game_state)
     
-    def findCol(self,game_state,moves):
+    def findCol(self,game_state,moves,cols):        
         
-        cols = []
-        cols.extend(range(0,x4.COLS))
         states = {}
         states_opp = {}        
         
@@ -116,9 +113,8 @@ class BotToBeat(ImprovedPlayer):
         return 'BotToBeat'  
 
         
-    def findCol(self,game_state,moves):
-        cols = []
-        cols.extend(range(0,x4.COLS))
+    def findCol(self,game_state,moves,cols):
+        
         states = {}
         states_opp = {}
         
@@ -166,11 +162,8 @@ class BotToBeat(ImprovedPlayer):
         #patterns.append(self.sign*(x4.TARGET-2)+x4.NEUTRAL*2)
         #**XX
         #patterns.append(x4.NEUTRAL*2+self.sign*(x4.TARGET-2))
-        
-    
-    
-    
-    
+       
+
             
 class BotToBeat2(BotToBeat):  
     
@@ -202,6 +195,178 @@ class BotToBeat2(BotToBeat):
                 return middel + 1
             else:
                 return middel - 1  
+            
+class BotToBeat3(BotToBeat2):  
+    
+    def className(self):
+        return 'BotToBeat3'  
+
+        
+    def findCol(self,game_state,moves,cols):
+        empty_sign = '*'
+        def addAllColsToState(state,sign):
+            for col in cols:
+                x4.addCoinTostate(temp_state,col,sign)  
+        
+        
+        states = {}
+        states_opp = {}
+        opp_states = {}
+        
+        ratings = {x:0 for x in range(x4.COLS)}
+        
+        #alle mogelijke zetten
+        for col in cols:            
+            states[col] = game_state.copy()
+            opp_states[col] = game_state.copy()
+            x4.addCoinTostate(states[col],col,self.sign)
+            x4.addCoinTostate(opp_states[col],col,x4.revertsign(self.sign))
+            for opp_move in cols:
+                temp_state = states[col].copy()
+                x4.addCoinTostate(temp_state,col,x4.revertsign(self.sign))
+                states_opp[col,opp_move] = temp_state
+                
+        for state in states:
+            addAllColsToState(state,empty_sign)
+        for state in states_opp:
+            addAllColsToState(state,empty_sign)
+            
+        #win ik op bepaalde colom?    
+        for col,state in states.items(): 
+            if x4.controle_all(state):
+                return col
+            
+        #wint tegenstander op bepaalde colom?    
+        for col,state in opp_states.items(): 
+            if x4.controle_all(state):
+                return col
+            
+        #Wint tegenstander?        
+        for combo,state in states_opp.items():            
+            if x4.controle_all(state):                
+                ratings[combo[1]] += 1
+            
+        #winning move = *XXX* = target-1*
+        for col,state in states.items(): 
+            pattern = empty_sign+self.sign*(x4.TARGET-1)+empty_sign
+            if self.findPattern(state,pattern):
+                ratings[col] += 0.1
+            
+        #winning move tegenstander
+        for combo,state in states_opp.items(): 
+            pattern = empty_sign+x4.revertsign(self.sign)*(x4.TARGET-1)+empty_sign
+            if self.findPattern(state,pattern):
+                ratings[combo[0]] -= 0.05            
+                
+        result = max(ratings, key=lambda k: ratings[k])
+        
+        #if ratings[result] > 0:
+        return result
+    
+    
+class BotToBeat4(BotToBeat2):  
+    
+    def className(self):
+        return 'BotToBeat4'  
+
+        
+    def findCol(self,game_state,moves,cols):
+        empty_sign = '*'
+        def addAllColsToState(state,sign):
+            for col in cols:
+                x4.addCoinTostate(temp_state,col,sign)                
+        
+        states = {}
+        states_opp = {}
+        
+        #alle mogelijke zetten
+        for col in cols:            
+            temp_state = game_state.copy()
+            x4.addCoinTostate(temp_state,col,self.sign)
+            states[col] = temp_state
+            temp_state = game_state.copy()
+            x4.addCoinTostate(temp_state,col,x4.revertsign(self.sign))
+            states_opp[col] = temp_state
+            
+        for state in states:
+            addAllColsToState(state,empty_sign)
+        for state in states_opp:
+            addAllColsToState(state,empty_sign)
+            
+        #win ik op bepaalde colom?    
+        for col in states: 
+            if x4.controle_all(states[col]):
+                return col
+            
+        #Wint tegenstander?        
+        for col in states_opp:            
+            if x4.controle_all(states_opp[col]):                
+                return col
+            
+        #winning move = *XXX= target-1*
+        for col in states: 
+            pattern = empty_sign+self.sign*(x4.TARGET-1)+empty_sign
+            if self.findPattern(states[col],pattern):
+                return col
+            
+        #winning move tegenstander
+        for col in states: 
+            pattern = empty_sign+x4.revertsign(self.sign)*(x4.TARGET-1)+empty_sign
+            if self.findPattern(states_opp[col],pattern):
+                return col   
+        
+        #winning move = *XXX= target-1*
+        for col in states: 
+            pattern = x4.NEUTRAL+self.sign*(x4.TARGET-1)+empty_sign
+            if self.findPattern(states[col],pattern):
+                return col
+            
+        #winning move tegenstander
+        for col in states: 
+            pattern = x4.NEUTRAL+x4.revertsign(self.sign)*(x4.TARGET-1)+empty_sign
+            if self.findPattern(states_opp[col],pattern):
+                return col   
+            
+        #winning move = *XXX= target-1*
+        for col in states: 
+            pattern = empty_sign+self.sign*(x4.TARGET-1)+x4.NEUTRAL
+            if self.findPattern(states[col],pattern):
+                return col
+            
+        #winning move tegenstander
+        for col in states: 
+            pattern = empty_sign+x4.revertsign(self.sign)*(x4.TARGET-1)+x4.NEUTRAL
+            if self.findPattern(states_opp[col],pattern):
+                return col     
+            
+        #winning move = *XXX= target-1*
+        for col in states: 
+            pattern = x4.NEUTRAL+self.sign*(x4.TARGET-1)+x4.NEUTRAL
+            if self.findPattern(states[col],pattern):
+                return col
+            
+        #winning move tegenstander
+        for col in states: 
+            pattern = x4.NEUTRAL+x4.revertsign(self.sign)*(x4.TARGET-1)+x4.NEUTRAL
+            if self.findPattern(states_opp[col],pattern):
+                return col     
+        
+           
+        
+        #find pattern   
+        #voeg patterns toe, belangrijkste eerst 
+        patterns = []
+        #XXX*       
+        patterns.append(self.sign*(x4.TARGET-1)+empty_sign)
+        #*XXX
+        patterns.append(empty_sign+self.sign*(x4.TARGET-1))
+        #*XX*
+        patterns.append(empty_sign+self.sign*(x4.TARGET-2)+empty_sign)
+        #XX**
+        #patterns.append(self.sign*(x4.TARGET-2)+x4.NEUTRAL*2)
+        #**XX
+        #patterns.append(x4.NEUTRAL*2+self.sign*(x4.TARGET-2))
+        
           
 
 if __name__ == '__main__':
@@ -211,9 +376,11 @@ if __name__ == '__main__':
     #define players
     players.append(BotToBeat())
     players.append(BotToBeat2())
-    players.append(ImprovedPlayer())
-    players.append(Simulator())
-    players.append(bots.RandomPlayer())
+    players.append(BotToBeat3())
+    players.append(BotToBeat4())
+    #players.append(ImprovedPlayer())
+    #*players.append(Simulator())
+    #players.append(bots.BasicPlayer())
     
     """
     ##VOEG HIER U BOT TOE##
@@ -221,8 +388,18 @@ if __name__ == '__main__':
     """
     
     #start tornooi
-    tornooi = tornooi.Tornooi(players)
+    import tornooi
+    tornooi = tornooi.Tornooi(players,50)
     tornooi.run()   
+    
+    import graphic
+    random.seed(1)
+    players = (BotToBeat2(),BotToBeat4())
+    
+    game = graphic.GraphicGame(players)
+    game.play()
+    
+    
     
     #print(player1.lastNode.toStr2())
     

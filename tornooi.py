@@ -16,7 +16,7 @@ import numpy as np
 
 import bots
 import vieropeenrij as x4
-#import graphic
+import graphic
 from multiprocessing import Pool
 
 
@@ -136,10 +136,11 @@ class Tornooi:
     def addToMatchup(self,player1,player2,winner,winorlose):
         g,w,l = self.matchups[(player1.className(),player2.className())]                  
         g += 1
-        if winner == player1:
-            w += 1
-        else:
-            l += 1
+        if winorlose != x4.DRAW:            
+            if winner == player1:
+                w += 1
+            else:
+                l += 1
         self.matchups[(player1.className(),player2.className())] = g,w,l        
         
         
@@ -281,10 +282,10 @@ def main():
     players = []
   
     #define players
-    players.append(bots.Player())    
+    #players.append(bots.Player())    
     players.append(bots.BasicPlayer())
     players.append(bots.MirrorBot())    
-    players.append(bots.RandomPlayer()) 
+    #♦players.append(bots.RandomPlayer()) 
     players.append(bots.ImprovedRandomPlayer())
     
     import ReinjanBots
@@ -293,6 +294,7 @@ def main():
     ##VOEG HIER U BOT TOE##
     players.append(EmielsBots.EmielsPlayer())   
     players.append(ReinjanBots.BotToBeat2())  
+    players.append(ReinjanBots.BotToBeat4())
     
     #start tornooi
 
@@ -301,8 +303,8 @@ def main():
     timing.endlog()
     
     #run na het tornooi een random game tussen twee deelnemers
-    #game = graphic.GraphicGame(tornooi.all_combinations.pop())
-    #game.play()
+    game = graphic.GraphicGame(tornooi.all_combinations.pop())
+    game.play()
     
 if __name__ == '__main__':
     main()
