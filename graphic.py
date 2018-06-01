@@ -50,11 +50,10 @@ class GraphicGame(x4.Game):
         
         
     def move(self,player):
-        self.draw_state(self.state)
-        
-        result = super(GraphicGame,self).move(player)        
         
         self.win.getMouse()
+        result = super(GraphicGame,self).move(player)             
+        self.draw_state(self.state)
         #win.close()
         return result
     

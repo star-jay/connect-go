@@ -24,6 +24,12 @@ LOSE = -1
 DRAW = 0
 
 def test():    
+    import bots
+    game = Game((bots.BasicPlayer(),bots.BasicPlayer(),))
+    
+    print(len(stateToArray(game.state)))
+    return
+    
     #testfunctie die alle mogelijke combinatie uitprobeert
     import itertools
     #empty field
@@ -42,6 +48,17 @@ def test():
         if controle_all(test_state):
             print(combi)
             print(print_rijen(test_state))   
+            
+def stateToArray(state):
+    result = []
+    for col in range(1,COLS+1):
+        c = []
+        result.append(c)
+        for row in range(1,ROWS+1):
+            c.append(state[(col)*(row)-1])  
+    return result                  
+            
+        
 
 #controles
 def listRijen(state):

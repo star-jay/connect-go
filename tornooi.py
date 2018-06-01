@@ -208,7 +208,7 @@ class Tornooi:
                 results.append(playgame(game))
             return results
 			        
-        p = Pool(4)       
+        #p = Pool(4)       
         for x in range(self.aantal_rondes):
 				#elo bepalen adhv van speler niet, aantal rondes
             adjustK(x)
@@ -278,7 +278,7 @@ class Tornooi:
 def main():   
 
     import timing
-    aantal_rondes = 100
+    aantal_rondes = 50
     players = []
   
     #define players
@@ -290,11 +290,14 @@ def main():
     
     import ReinjanBots
     import EmielsBots
+    import MyBots
 
     ##VOEG HIER U BOT TOE##
-    players.append(EmielsBots.EmielsPlayer())   
+    #players.append(EmielsBots.EmielsPlayer())   
+    players.append(ReinjanBots.BotToBeat())  
     players.append(ReinjanBots.BotToBeat2())  
-    players.append(ReinjanBots.BotToBeat4())
+    players.append(MyBots.BotToBeat2())  
+    
     
     #start tornooi
 
@@ -303,8 +306,8 @@ def main():
     timing.endlog()
     
     #run na het tornooi een random game tussen twee deelnemers
-    game = graphic.GraphicGame(tornooi.all_combinations.pop())
-    game.play()
+    #game = graphic.GraphicGame(tornooi.all_combinations.pop())
+    #game.play()
     
 if __name__ == '__main__':
     main()
