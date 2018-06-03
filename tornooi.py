@@ -283,17 +283,18 @@ def main():
   
     #define players
     #players.append(bots.Player())    
-    players.append(bots.BasicPlayer())
-    players.append(bots.MirrorBot())    
-    #♦players.append(bots.RandomPlayer()) 
-    players.append(bots.ImprovedRandomPlayer())
+    #players.append(bots.BasicPlayer())
+    #players.append(bots.MirrorBot())    
+    #players.append(bots.RandomPlayer()) 
+    #players.append(bots.ImprovedRandomPlayer())
     
     import ReinjanBots
     import EmielsBots
 
     ##VOEG HIER U BOT TOE##
     players.append(EmielsBots.EmielsPlayer())   
-    players.append(ReinjanBots.BotToBeat2())  
+    players.append(ReinjanBots.BotToBeat2())   
+    players.append(ReinjanBots.BotToBeat3())  
     players.append(ReinjanBots.BotToBeat4())
     
     #start tornooi
@@ -303,8 +304,8 @@ def main():
     timing.endlog()
     
     #run na het tornooi een random game tussen twee deelnemers
-    game = graphic.GraphicGame(tornooi.all_combinations.pop())
-    game.play()
+    #game = graphic.GraphicGame(tornooi.all_combinations.pop())
+    #game.play()
     
 if __name__ == '__main__':
     main()
