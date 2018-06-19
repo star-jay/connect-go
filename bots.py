@@ -34,9 +34,8 @@ class BasicPlayer(Player):
         
     def makeMove(self,game_state,moves):
         #plaats in eerste kolom die nog niet vol is
-        for x in range (x4.COLS):
-            if game_state[(x4.ROWS-1)*x4.COLS + x] == x4.NEUTRAL:
-                return x
+        cols = list(x for x in range(x4.COLS) if moves.count(x) < x4.ROWS)
+        return cols.pop()
     
 class RandomPlayer(Player):
     
@@ -45,29 +44,19 @@ class RandomPlayer(Player):
     
     def makeMove(self,game_state,moves):
         #basic move 
-        cols = []
-        cols.extend(range(0,6))
+        cols = list(x for x in range(x4.COLS) if moves.count(x) < x4.ROWS)
+        
         random.shuffle(cols)
-           #x = random.randint(0,x4.COLS-1)
-        for col in cols:
-            if game_state[x4.MAX_RANGE - (x4.COLS-col)] == x4.NEUTRAL:            
-                return col
+        return cols.pop()
             
 class ImprovedRandomPlayer(Player):
     
     def __init__(self):
         self.name = 'ImprovedRandomPlayer'
     
-    def controle_kolommen(state):
-        for i in range(7):
-            rij = list (x for x in state[i::x4.COLS])        
-            if x4.controle(rij):                
-                return True
-    
     def makeMove(self,game_state,moves):
         #basic move 
-        cols = []
-        cols.extend(range(0,x4.COLS))
+        cols = list(x for x in range(x4.COLS) if moves.count(x) < x4.ROWS)
         
         #eerst controleren of je kan winnen met bepaalde move
         for col in cols:
@@ -77,11 +66,8 @@ class ImprovedRandomPlayer(Player):
                 return col
         
         #anders random col
-        random.shuffle(cols)           
-        for col in cols:
-            if game_state[x4.MAX_RANGE - (x4.COLS-col)] == x4.NEUTRAL:
-            #if game_state[(x4.ROWS-1)*x4.COLS + x] == x4.NEUTRAL:
-                return col
+        random.shuffle(cols)
+        return cols.pop()
              
 class CopyBot(Player):
     

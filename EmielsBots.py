@@ -14,8 +14,8 @@ import tornooi
 
 class EmielsPlayer(bots.Player):
     
-    def className(self):
-        return 'EmielsPlayer'
+    def __init__(self):
+        self.name = 'EmielsPlayer'
     
     def freeSlot(self, game_state, slotNr):
         if game_state[slotNr] != x4.NEUTRAL:
