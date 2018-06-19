@@ -51,6 +51,13 @@ def test():
             
 def stateToArray(state):
     result = []
+    for x in range(ROWS):        
+        c = state[x*COLS:x*COLS+COLS]
+        result.append(c)
+            
+    return result
+        
+    result = []
     for col in range(1,COLS+1):
         c = []
         result.append(c)
@@ -178,7 +185,7 @@ class Game():
         
         self.times = {}
         for player in players:
-            self.times[player.className()] = 0
+            self.times[player.name] = 0
         
         #reset bord
         self.state = [NEUTRAL for x in range(MAX_RANGE)]  
@@ -197,7 +204,7 @@ class Game():
         col = player.makeMove(self.state.copy(),self.moves.copy())        
         self.moves.append(col)
         end_time = time.time() - start_time 
-        self.times[player.className()] += end_time
+        self.times[player.name] += end_time
         #controle op legal move
         log.debug(player.sign+':'+str(col))
         return addCoinTostate(self.state,col,player.sign)

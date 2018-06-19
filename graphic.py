@@ -37,13 +37,13 @@ class GraphicGame(x4.Game):
         board.draw(self.win)
         
         
-        label = g.Text(g.Point(WIDTH + MARGIN, MARGIN), players[0].className())
+        label = g.Text(g.Point(WIDTH + MARGIN, MARGIN), players[0].name)
         label.setStyle("bold")
         label.setFill(COLORS[0])
         label.draw(self.win)
         
         for x in range(len(players)):
-            label = g.Text(g.Point(WIDTH + MARGIN, MARGIN*(x+1)), players[x].className())
+            label = g.Text(g.Point(WIDTH + MARGIN, MARGIN*(x+1)), players[x].name)
             label.setStyle("bold")
             label.setFill(COLORS[x])
             label.draw(self.win)

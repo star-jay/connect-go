@@ -12,11 +12,9 @@ import random
 class Player():   
     
     def __init__(self):
-        self.name = self.className()
+        self.name = 'unknown'
         
-    def className(self):
-        return 'unknown'
-        
+            
     def makeMove(self,game_state,moves):
         #basic move         
         return 0
@@ -31,8 +29,8 @@ class Player():
     
 class BasicPlayer(Player):   
     
-    def className(self):
-        return 'BasicPlayer'
+    def __init__(self):
+        self.name = 'BasicPlayer'
         
     def makeMove(self,game_state,moves):
         #plaats in eerste kolom die nog niet vol is
@@ -42,8 +40,8 @@ class BasicPlayer(Player):
     
 class RandomPlayer(Player):
     
-    def className(self):
-        return 'RandomPlayer'
+    def __init__(self):
+        self.name ='RandomPlayer'
     
     def makeMove(self,game_state,moves):
         #basic move 
@@ -57,8 +55,8 @@ class RandomPlayer(Player):
             
 class ImprovedRandomPlayer(Player):
     
-    def className(self):
-        return 'ImprovedRandomPlayer'
+    def __init__(self):
+        self.name = 'ImprovedRandomPlayer'
     
     def controle_kolommen(state):
         for i in range(7):
@@ -87,8 +85,8 @@ class ImprovedRandomPlayer(Player):
              
 class CopyBot(Player):
     
-    def className(self):
-        return 'CopyBot'
+    def __init__(self):
+        self.name = 'CopyBot'
     
     def makeMove(self,game_state,moves):
         #basic move 
@@ -99,8 +97,8 @@ class CopyBot(Player):
         
 class MirrorBot(Player):
     
-    def className(self):
-        return 'MirrorBot'
+    def __init__(self):
+        self.name = 'MirrorBot'
     
     def makeMove(self,game_state,moves):
         if len(moves) == 0:
