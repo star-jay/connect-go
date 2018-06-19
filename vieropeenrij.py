@@ -191,17 +191,27 @@ class Game():
         #self.signs[players[1]] = SIGNS[1]
     
     
-    def move(self,player):
+    def turn(self,player):
         start_time = time.time()  
         #speler maakt move
-        col = player.makeMove(self.state.copy(),self.moves.copy())        
-        self.moves.append(col)
+        col = player.makeMove(self.state.copy(),self.moves.copy()) 
         end_time = time.time() - start_time 
         self.times[player.className()] += end_time
-        #controle op legal move
+        
+        #col toevoegen aan moves
         log.debug(player.sign+':'+str(col))
-        return addCoinTostate(self.state,col,player.sign)
-      
+        self.moves.append(col)
+        
+        #controle op legal move 
+        if col == None:
+            return False
+        if (col >= COLS) or (col<0):
+            return False
+        #controle of col nog niet vol is
+        if self.moves.count(col) > ROWS:
+            return False
+        
+        return addCoinTostate(self.state,col,player.sign)      
         
     def play(self):       
         def playthrough(): 
@@ -210,7 +220,7 @@ class Game():
             other_player = self.players[1]
             #maximum aantal zetten        
             for x in range(MAX_RANGE):            
-                if not self.move(active_player):
+                if not self.turn(active_player):
                     #illegal move
                     return LOSE,other_player,active_player
                 elif controle_all(self.state):
