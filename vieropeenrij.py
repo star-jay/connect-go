@@ -24,11 +24,7 @@ LOSE = -1
 DRAW = 0
 
 def test():    
-    import bots
-    game = Game((bots.BasicPlayer(),bots.BasicPlayer(),))
     
-    print(len(stateToArray(game.state)))
-    return
     
     #testfunctie die alle mogelijke combinatie uitprobeert
     import itertools
@@ -45,9 +41,11 @@ def test():
             #set to sign
             test_state[field] = SIGNS[0]
         #test if combination is connected   
-        if controle_all(test_state):
+        array = stateToArray(test_state)
+        if controle_all(test_state) != controleArray(array):            
             print(combi)
-            print(print_rijen(test_state))   
+            print(print_rijen(test_state)) 
+            print(array)
             
 def stateToArray(state):
     result = []
@@ -68,6 +66,39 @@ def stateToArray(state):
         
 
 #controles
+    
+def listRijenArray(array):
+    rijen = []
+    
+    #rijen
+    for i in range(ROWS):        
+        rijen.append( list ((array[i][x],i,x) for x in range(COLS)))
+    
+    #kolommen    
+    for i in range(COLS):
+        rijen.append( list ((array[y][i],y,i) for y in range(ROWS)))
+    
+    #digonaal positieve offset       
+    for i in range(0-TARGET,COLS):                           
+        rij = list ((array[i+x][x],i+x,x) for x in range(COLS) if i+x>=0 and i+x<ROWS )
+        if len(rij)>=TARGET:
+            rijen.append(rij)
+    
+    #digonaal positieve offset       
+    for i in range(COLS+TARGET):   
+        rij = list ((array[i-x][x],i-x,x) for x in range(COLS) if i-x>=0 and i-x<ROWS) 
+        if len(rij)>=TARGET:
+            rijen.append(rij)
+    
+    return rijen    
+
+def controleArray(array):
+    for rij in listRijenArray(array):
+        if controleRijArray(rij):
+            return True           
+
+
+
 def listRijen(state):
     rijen = []
     
@@ -97,27 +128,36 @@ def listRijen(state):
     
     return rijen
 
-def controle(rij):
+def controleRij(rij):
     for x in range(len(rij)-(TARGET-1)):
         if rij[x:x+TARGET].count(rij[x]) >= TARGET and rij[x]!=NEUTRAL:
             return True
+        
+def controleRijArray(rij):   
+    for sign in SIGNS:
+        for x in range (len(rij)-(TARGET-1)):
+            rij_deel = rij[x:TARGET+x]
+            nodes = list(node[0] for node in rij_deel)
+            if (nodes.count(sign) >= TARGET) :
+                return True
+    
             
 def controle_all(state):
     for rij in listRijen(state):
-        if controle(rij):
+        if controleRij(rij):
             return True
 
 def controle_rijen(state):
     for i in range(ROWS):        
         rij = list (x for x in state[i*COLS:i*COLS+COLS])
-        if controle(rij):
+        if controleRij(rij):
             log.debug('WIN op rij {0!s} : {1!s}'.format(i+1,rij))
             return True         
         
 def controle_kolommen(state):
     for i in range(COLS):
         rij = list (x for x in state[i::COLS])        
-        if controle(rij):
+        if controleRij(rij):
             log.debug('WIN op kolom {0!s} : {1!s}'.format(i+1,rij))  
             return True
        
@@ -125,26 +165,26 @@ def controle_diagonalen(state):
     #positieve offset       
     for i in range(COLS-(TARGET-1)):             
         rij = list (state[i:COLS*(COLS-i):COLS + 1 ])       
-        if controle(rij):
+        if controleRij(rij):
             log.debug('WIN op diagonaal-bergaf {0!s} : {1!s}'.format(i+1,rij))
             return True
         
     for i in range(0,ROWS-TARGET):        
         rij = list (state[COLS*(i+1)::COLS + 1 ])       
-        if controle(rij):
+        if controleRij(rij):
             log.debug('WIN op diagonaal-bergaf {0!s} : {1!s}'.format(i+1,rij))  
             return True
         
     #negatieve offset     
     for i in range(COLS-(TARGET-1)):             
         rij = list (state[i+TARGET:COLS*(COLS-i):COLS - 1 ])       
-        if controle(rij):
+        if controleRij(rij):
             log.debug('WIN op diagonaal-bergop {0!s} : {1!s}'.format(i+1,rij))      
             return True
         
     for i in range(1,ROWS-TARGET+1):        
         rij = list (state[COLS*(i+1)-1::COLS - 1 ])       
-        if controle(rij):
+        if controleRij(rij):
             log.debug('WIN op diagonaal-bergop {0!s} : {1!s}'.format(i+1,rij))   
             return True
         

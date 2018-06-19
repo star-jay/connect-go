@@ -284,7 +284,7 @@ def main():
     #define players
     #players.append(bots.Player())    
     players.append(bots.BasicPlayer())
-    players.append(bots.MirrorBot())    
+    #players.append(bots.MirrorBot())    
     #♦players.append(bots.RandomPlayer()) 
     #players.append(bots.ImprovedRandomPlayer())
     
@@ -294,7 +294,9 @@ def main():
 
     ##VOEG HIER U BOT TOE##
     players.append(EmielsBots.EmielsPlayer())       
-    players.append(ReinjanBots.BotToBeat4()) 
+    players.append(ReinjanBots.CalcBot()) 
+    players.append(ReinjanBots.BasePlayer()) 
+    #players.append(ReinjanBots.SpeedyRandomPlayer())
     #players.append(ReinjanBots.BotToBeat4(name='ohno',values=(1,0,0))) 
     #players.append(MyBots.BotToBeat2())  
     

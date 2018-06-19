@@ -14,6 +14,228 @@ import itertools
 #logging
 log.basicConfig(level=log.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+def controleArray(array,sign,target,wildcard,wildcardcount):            
+            
+    def controleRij(rij,sign,target,wildcard,wildcardcount):
+        #controleer rij op combinatie wildcards en  signs                
+        for x in range (len(rij)-(x4.TARGET-1)):
+            rij_deel = rij[x:x4.TARGET+x]
+            nodes = list(node[0] for node in rij_deel)
+            if (nodes.count(sign) >= target) and (nodes.count(wildcard) >= wildcardcount):
+                return rij[nodes.index(wildcard)+x]
+        
+    
+    for rij in x4.listRijenArray(array):
+        #print(rij)
+        node = controleRij(rij,sign,target,wildcard,wildcardcount)
+            #return de col
+        if node != None:
+            return node[2]
+            
+    
+def quickBlock(array,cols,sign,wildcard):
+    #controleer of er velden zijn die een reeks afmaken
+    return controleArray(array,x4.revertsign(sign),x4.TARGET-1,wildcard,1)
+
+def quickWin(array,cols,sign,wildcard):
+    #controleer of er velden zijn die een reeks afmaken
+    return controleArray(array,(sign),x4.TARGET-1,wildcard,1)
+
+class BasePlayer(bots.Player):
+    
+    def __init__(self,name='BasePlayer'):
+        self.name = name
+        self.WILDCARD = '*'
+        
+    def startgame(self,sign):
+        #basic move         
+        self.sign = sign
+    
+    def opening(self,game_state,moves):
+        #aantal zetten bepalen waarin je een bepaalde opening uitvoert        
+        #bepaalde opening 
+        middel = int(x4.COLS / 2 ) 
+        #opening
+        if len(moves) == 0:
+            return middel 
+        #tweede
+        if len(moves) == 1:
+            if moves[0] == middel:
+                return middel -1
+            else:
+                return middel
+        #reactie op tweede
+        if len(moves) == 2:
+            if game_state[middel-1] == x4.NEUTRAL:
+                return middel + 1
+            else:
+                return middel - 1 
+
+    def random_move(self,game_state,cols):        
+        random.shuffle(cols)
+        return cols.pop()        
+            
+    #zoek winnende move        
+    def findCol(self,array,moves,cols,nodes):
+         
+        #nodes die bespeelt worden                
+        #wildcard spelen
+        
+        for col,row in nodes.items():
+            array[row][col] = self.WILDCARD             
+       
+        #todo : kijk of je zelf wint        
+        col = quickWin(array,cols,self.sign,self.WILDCARD)
+        if col != None: 
+            return col
+        
+        
+        #quickblock tegenstander
+        col = quickBlock(array,cols,self.sign,self.WILDCARD)
+        if col != None: return col
+    
+    
+    def makeMove(self,game_state,moves): 
+        #opening move
+        col = self.opening(game_state,moves)
+        if col != None:
+            return col
+        
+        #kolommen waar er nog geen maximum aantal zetten in gespeeld zijn
+        cols = [x for x in range(x4.COLS) if moves.count(x) < x4.ROWS ]     
+        
+        nodes = {x: moves.count(x) for x in cols}
+        
+        #array van gamestate bacause
+        array = x4.stateToArray(game_state) 
+        #winning move
+        col = self.findCol(array,moves,cols,nodes)
+        if col != None:
+            return col
+
+        #random kolom
+        return self.random_move(game_state,cols)
+
+class CalcBot(BasePlayer):  
+    
+    def __init__(self,name='CalcBot',values=(2,2,1,2)):
+        super(CalcBot,self).__init__(name)
+        
+        self.startvalues = values
+        
+    def startgame(self,sign):
+        #basic move         
+        self.sign = sign
+        self.values = {
+                          self.sign:self.startvalues[0],
+                          x4.revertsign(self.sign):self.startvalues[1],
+                          x4.NEUTRAL:self.startvalues[2],
+                          self.WILDCARD:self.startvalues[3],
+                          }
+        
+       
+           
+    def findCol(self,array,moves,cols,nodes):
+        def calcScore(col,row,x,y,array,sign=None):
+            if x==y==0:
+                return 0
+            
+            col = col+x
+            row = row+y
+            
+            if (col >= 0) and (col < x4.COLS) and (row >=0) and (row < x4.ROWS): 
+                newsign = array[row][col]
+                if (newsign == sign) or (sign==None):
+                    return self.values[newsign] + calcScore(col,row,x,y,array,newsign)
+                else:
+                    return 0                    
+            else:
+                return 0 
+        def scoreSurrounding(col,row,array):          
+                
+            #score van omrigende nodes bepalen
+            score = 0             
+            for x,y in list(itertools.product((-1,0,1),repeat=2)):                
+                score += calcScore(col,row,x,y,array)
+            return score
+        
+        #kjiken naar win condition
+        col = super(CalcBot,self).findCol(array,moves,cols,nodes)
+        if col != None: return col
+            
+        
+        scores = {col:scoreSurrounding(col,row,array) for col,row in nodes.items()}
+               
+        import operator
+
+        sorted_scores = sorted(scores.items(), key=operator.itemgetter(1),reverse=True)
+        
+        #print(sorted_scores)
+          
+        for col,score in sorted_scores:
+            #best scorende kolom controleren          
+            
+            #winning move dus yay
+            array[nodes[col]][col] = self.sign           
+            if x4.controleArray(array):
+                return col
+            #winning move tegenstander dus nay
+            array[nodes[col]][col] = x4.revertsign(self.sign)           
+            if not x4.controleArray(array):
+                return col
+            array[nodes[col]][col] = self.WILDCARD 
+        #depseration move    
+        return cols.pop()
+    
+class GridBot(BasePlayer):  
+    
+    def __init__(self,name='CalcBot',values=(2,2,1,2)):
+        super(CalcBot,self).__init__(name)
+        
+        self.startvalues = values     
+
+    
+class SpeedyRandomPlayer(BasePlayer):
+    
+    def __init__(self,name='SpeedyRandomPlayer'):
+        super(SpeedyRandomPlayer,self).__init__(name)
+    
+    #zoek winnende move        
+    def findCol(self,array,moves,cols,nodes):
+         
+        #nodes die bespeelt worden                
+        #wildcard spelen
+        
+        for col,row in nodes.items():
+            array[row][col] = self.WILDCARD             
+       
+        #todo : kijk of je zelf wint        
+        col = quickWin(array,cols,self.sign,self.WILDCARD)
+        if col != None: 
+            return col
+        
+        random.shuffle(cols)
+        cols.pop()
+        
+        
+        
+if __name__ == '__main__':
+    #player2 = MonteCarlo()    
+    
+    
+    import EmielsBots
+    
+    import graphic
+    random.seed(1)
+    players = []
+    players.append(CalcBot()) 
+    players.append(EmielsBots.EmielsPlayer())
+    #players.append(CalcBot())
+    
+    game = graphic.GraphicGame(players)
+    game.play()
+    
+
       
 class ImprovedPlayer(bots.Player):
     
@@ -215,191 +437,7 @@ class BotToBeat3(BotToBeat2):
         
         
         
-        return max(scores, key=scores.get)
-
-class BotToBeat4(bots.Player):  
-    
-    def __init__(self,name='BotToBeat4',values=(2,2,1)):
-        self.name = name
-        self.startvalues = values
-        
-    def startgame(self,sign):
-        #basic move         
-        self.sign = sign
-        self.values = {
-                          self.sign:self.startvalues[0],
-                          x4.revertsign(self.sign):self.startvalues[1],
-                          x4.NEUTRAL:self.startvalues[2],
-                          '*':self.startvalues[2],
-                          }
-        
-       
-           
-    def makeMove(self,game_state,moves):
-        def calcScore(col,row,x,y,array,sign=None):
-            if x==y==0:
-                return 0
-            
-            col = col+x
-            row = row+y
-            
-            if (col >= 0) and (col < x4.COLS) and (row >=0) and (row < x4.ROWS): 
-                newsign = array[row][col]
-                if (newsign == sign) or (sign==None):
-                    return self.values[newsign] + calcScore(col,row,x,y,array,newsign)
-                else:
-                    return 0                    
-            else:
-                return 0 
-        def scoreSurrounding(col,row,array):          
-                
-            #score van omrigende nodes bepalen
-            score = 0             
-            for x,y in list(itertools.product((-1,0,1),repeat=2)):                
-                score += calcScore(col,row,x,y,array)
-            return score
-                
-        def controleArray(array,sign,target,wildcard,wildcardcount):
-            def listRijen(array):
-                rijen = []
-                
-                #rijen
-                for i in range(x4.ROWS):        
-                    rijen.append( list ((array[i][x],i,x) for x in range(x4.COLS)))
-                
-                #kolommen    
-                for i in range(x4.COLS):
-                    rijen.append( list ((array[y][i],y,i) for y in range(x4.ROWS)))
-                    
-                #digonaal positieve offset       
-                for i in range(x4.COLS):                           
-                    rijen.append( list ((array[i+x][x],i+x,x) for x in range(x4.COLS) if i+x<x4.COLS-1))
-                
-                 #digonaal positieve offset       
-                for i in range(x4.COLS):                           
-                    rijen.append( list ((array[i-x][x],i-x,x) for x in range(x4.COLS) if i-x>=0 and i+x<x4.COLS-1))
-            
-                    
-                #for i in range(0,ROWS-TARGET):        
-                #    rijen.append( list (state[COLS*(i+1)::COLS + 1 ])) 
-                    
-                #diagonaal negatieve offset
-                #for i in range(COLS-TARGET + 1):             
-                #    rijen.append( list (state[i+TARGET-1 : (i+TARGET-1) * COLS +1  : COLS-1 ]))       
-            
-                    
-                #for i in range(1,ROWS-TARGET+1):        
-                #   rijen.append( list (state[COLS*(i+1)-1::COLS - 1 ]))       
-                
-                return rijen
-            
-            def controleRij(rij,sign,target,wildcard,wildcardcount):
-                #controleer rij op combinatie wildcards en  signs
-                
-                for x in range (len(rij)-x4.TARGET):
-                    rij_deel = rij[x:4+x]
-                    nodes = list(node[0] for node in rij_deel)
-                    if (nodes.count(sign) >= target) and (nodes.count(wildcard) >= wildcardcount):
-                        return rij[nodes.index(wildcard)+x]
-                
-            
-            for rij in listRijen(array):
-                #print(rij)
-                node = controleRij(rij,sign,target,wildcard,wildcardcount)
-                    #return de col
-                if node != None:
-                    return node[2]
-                
-        
-        def quickBlock(array,cols,wildcard):
-            #controleer of er velden zijn die een reeks afmaken
-            return controleArray(array,x4.revertsign(self.sign),x4.TARGET-1,wildcard,1)
-        
-        def quickWin(array,cols,wildcard):
-            #controleer of er velden zijn die een reeks afmaken
-            return controleArray(array,(self.sign),x4.TARGET-1,wildcard,1)
-                       
-        
-        #count de rij waar er gespeeld moet worden
-       
-        
-        #kolommen waar er nog geen maximum aantal zetten in gespeeld zijn
-        cols = [x for x in range(x4.COLS) if moves.count(x) < x4.ROWS ]  
-        #nodes die bespeelt worden
-        nodes = {x: moves.count(x) for x in cols}
-        
-        array = x4.stateToArray(game_state) 
-                
-        #wildcard spelen
-        wildcard = '*'
-        for col,row in nodes.items():
-            array[row][col] = wildcard 
-            
-       
-        #todo : kijk of je zelf wint
-        #quickblock tegenstander
-        col = quickWin(array,cols,wildcard)
-        if col != None: 
-            return col
-        
-        #quickblock tegenstander
-        col = quickBlock(array,cols,wildcard)
-        if col != None: return col
-        
-        
-        
-        scores = {col:scoreSurrounding(col,row,array) for col,row in nodes.items()}
-               
-        import operator
-
-        sorted_scores = sorted(scores.items(), key=operator.itemgetter(1),reverse=True)
-        
-        #print(sorted_scores)
-          
-        for col,score in sorted_scores:
-            #best scorende kolom controleren          
-            state = game_state.copy()
-            #winning move dus yay
-            x4.addCoinTostate(state,col,self.sign)            
-            if x4.controle_all(state):
-                return col
-            #winning move tegenstander dus nay
-            x4.addCoinTostate(state,col,x4.revertsign(self.sign))            
-            if not x4.controle_all(state):
-                return col
-        #depseration move    
-        return cols.pop()
-        
-        
-        
-if __name__ == '__main__':
-    #player2 = MonteCarlo()    
-    players = []
-  
-    #define players
-    players.append(BotToBeat4())
-   
-    
-    players.append(ImprovedPlayer())
-    #players.append(Simulator())
-    players.append(bots.BasicPlayer())
-    
-    #start tornooi
-    import tornooi
-    tornooi = tornooi.Tornooi(players,50)
-    #tornooi.run()   
-    
-    import EmielsBots
-    
-    import graphic
-    random.seed(1)
-    players = []
-    #players.append(BotToBeat4()) 
-    players.append(EmielsBots.EmielsPlayer())
-    players.append(BotToBeat4())
-    
-    game = graphic.GraphicGame(players)
-    game.play()
+        return max(scores, key=scores.get)    
     
 class Simulator(ImprovedPlayer):
     

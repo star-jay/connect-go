@@ -68,7 +68,8 @@ class ImprovedRandomPlayer(Player):
         #anders random col
         random.shuffle(cols)
         return cols.pop()
-             
+  
+            
 class CopyBot(Player):
     
     def __init__(self):
