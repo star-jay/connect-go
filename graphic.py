@@ -8,7 +8,7 @@ Created on Mon Apr 30 23:36:31 2018
 '''A simple graphics example constructs a face from basic shapes.
 '''
 
-import graphic as g
+import graphics as g
 import vieropeenrij as x4
 
 WIDTH = 640

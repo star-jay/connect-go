@@ -60,10 +60,13 @@ class ImprovedRandomPlayer(Player):
         
         #eerst controleren of je kan winnen met bepaalde move
         for col in cols:
-            temp_state = game_state.copy()
-            x4.addCoinTostate(temp_state,col,self.sign)
-            if x4.controle_all(temp_state):
+            #kolom spelen
+            game_state[moves.count(col)][col] = self.sign          
+            #controelren
+            if x4.controleArray(game_state):
                 return col
+            #terugzetten oorsprongkelijke staat
+            game_state[moves.count(col)][col] = x4.NEUTRAL
         
         #anders random col
         random.shuffle(cols)
@@ -77,10 +80,16 @@ class CopyBot(Player):
     
     def makeMove(self,game_state,moves):
         #basic move 
-        if len(moves) == 0:
-           return  random.randint(0,x4.COLS)
+        
+        cols = list(x for x in range(x4.COLS) if moves.count(x) < x4.ROWS)
+        if len(moves)==0: 
+           return cols.pop()
+       
+        move = moves.pop()        
+        if moves.count(move) == x4.ROWS-1:
+           return cols.pop()
         else:
-            return moves.pop()
+           return move
         
 class MirrorBot(Player):
     
@@ -88,9 +97,19 @@ class MirrorBot(Player):
         self.name = 'MirrorBot'
     
     def makeMove(self,game_state,moves):
-        if len(moves) == 0:
-           return  random.randint(0,x4.COLS)
-        else:            
-            move = moves.pop()
-            return (x4.COLS-1) - move
+        cols = list(x for x in range(x4.COLS) if moves.count(x) < x4.ROWS)
+        
+        if len(moves)==0: 
+           return cols.pop()
+        
+        move = moves.pop()
+        if not move in cols:
+            return cols.pop()
+        
+        mirrormove = len(cols) - cols.index(move) - 1        
+        if len(cols) > mirrormove:    
+            return cols[mirrormove]
+        else:
+            cols.pop()
+        
         

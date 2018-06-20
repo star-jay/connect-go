@@ -214,6 +214,25 @@ def addCoinTostate(state,col,sign):
        
     #kolom vol = illegal move
     return False
+
+def addCoinToArray(array,col,sign):
+    if col == None:
+        return False
+    if (col >= COLS) or (col<0):
+        return False
+    for row in range(ROWS):
+        try:            
+            if array[row][col] == NEUTRAL:                   
+               
+                array[row][col] = sign
+                return True
+           
+        except IndexError:
+            #illegal move, komt normaal niet voor
+            return False
+       
+    #kolom vol = illegal move
+    return False
         
 class Game():
    
@@ -228,7 +247,9 @@ class Game():
             self.times[player.name] = 0
         
         #reset bord
-        self.state = [NEUTRAL for x in range(MAX_RANGE)]  
+        self.state = [NEUTRAL for x in range(MAX_RANGE)] 
+        self.array = stateToArray(self.state)
+        
         
         #geef elke speler een teken   
         self.players[0].startgame(SIGNS[0])
@@ -241,7 +262,21 @@ class Game():
     def turn(self,player):
         start_time = time.time()  
         #speler maakt move
-        col = player.makeMove(self.state.copy(),self.moves.copy()) 
+        
+        array_copy = []
+        for rij in self.array:
+            array_copy.append(rij.copy())
+        try:
+            col = player.makeMove(array_copy,self.moves.copy()) 
+        except Exception as e:
+            log.error('Fout {} door {}({}) in game tegen {} :'.format(e,player.name,player.sign, str(opponent.name for opponent in self.players if opponent != player)))
+            for rij in self.array:
+                log.info(rij)
+            end_time = time.time() - start_time 
+            self.times[player.name] += end_time
+            return False
+            
+        
         end_time = time.time() - start_time 
         self.times[player.name] += end_time
 
@@ -258,7 +293,8 @@ class Game():
         if self.moves.count(col) > ROWS:
             return False
         
-        return addCoinTostate(self.state,col,player.sign)      
+        #return addCoinTostate(self.state,col,player.sign) 
+        return addCoinToArray(self.array,col,player.sign)     
         
     def play(self):       
         def playthrough(): 
@@ -270,7 +306,7 @@ class Game():
                 if not self.turn(active_player):
                     #illegal move
                     return LOSE,other_player,active_player
-                elif controle_all(self.state):
+                elif controleArray(self.array):
                     return WIN,active_player,other_player
                 #geen win is blijven spelen en spelers omwisselen
                 active_player,other_player = other_player,active_player
