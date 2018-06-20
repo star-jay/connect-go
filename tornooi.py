@@ -66,8 +66,8 @@ def playgame(args):
     
 
 def calculateElo(players,scores):
-    R1 = 10 ** (scores[players[0].className()]/C)
-    R2 = 10 ** (scores[players[1].className()]/C)
+    R1 = 10 ** (scores[players[0].name]/C)
+    R2 = 10 ** (scores[players[1].name]/C)
     
     E1 = R1 / (R1 + R2)   
     E2 = R2 / (R1 + R2)
@@ -125,23 +125,23 @@ class Tornooi:
         try:
             if winorlose==x4.DRAW :
                 log.debug('gelijkspel')
-                scores[winner.className()] += elo[winner][x4.DRAW]            
-                scores[loser.className()]  += elo[loser][x4.DRAW]
+                scores[winner.name] += elo[winner][x4.DRAW]            
+                scores[loser.name]  += elo[loser][x4.DRAW]
             else:         
-                scores[winner.className()] += elo[winner][x4.WIN]            
-                scores[loser.className()]  += elo[loser][x4.LOSE]
+                scores[winner.name] += elo[winner][x4.WIN]            
+                scores[loser.name]  += elo[loser][x4.LOSE]
         except KeyError as e:
             log.error('I got an IndexError - reason "%s"' % str(e))
             
     def addToMatchup(self,player1,player2,winner,winorlose):
-        g,w,l = self.matchups[(player1.className(),player2.className())]                  
+        g,w,l = self.matchups[(player1.name,player2.name)]                  
         g += 1
         if winorlose != x4.DRAW:            
             if winner == player1:
                 w += 1
             else:
                 l += 1
-        self.matchups[(player1.className(),player2.className())] = g,w,l        
+        self.matchups[(player1.name,player2.name)] = g,w,l        
         
         
     def saveScores(self):
@@ -151,7 +151,7 @@ class Tornooi:
         
         legends = []
         for player in self.players:                
-            legends.append(player.className())
+            legends.append(player.name)
             
         plot = plt.plot(self.chart)
         plt.ylabel('ELO')
@@ -167,7 +167,7 @@ class Tornooi:
                 if first == second:
                     l.append(np.nan)
                 else:
-                    g,w,lo = self.matchups[(first.className(),second.className())]
+                    g,w,lo = self.matchups[(first.name,second.name)]
                     l.append(w / g )
             m.append(l)
             
@@ -180,8 +180,8 @@ class Tornooi:
         ax.set_xticks(np.arange(len(self.players)))
         ax.set_yticks(np.arange(len(self.players)))
         # ... and label them with the respective list entries
-        ax.set_xticklabels(player.className() for player in self.players)
-        ax.set_yticklabels(player.className() for player in self.players)
+        ax.set_xticklabels(player.name for player in self.players)
+        ax.set_yticklabels(player.name for player in self.players)
         
         ax.xaxis.tick_top()
         
@@ -208,7 +208,7 @@ class Tornooi:
                 results.append(playgame(game))
             return results
 			        
-        p = Pool(4)       
+        #p = Pool(4)       
         for x in range(self.aantal_rondes):
 				#elo bepalen adhv van speler niet, aantal rondes
             adjustK(x)
@@ -242,14 +242,14 @@ class Tornooi:
         global K
         #reset scores
         for player in self.players:            
-            self.scores[player.className()] = START_ELO    
+            self.scores[player.name] = START_ELO    
         
         #reset matchup
-        self.matchups = {(combi[0].className(),combi[1].className()):(0,0,0) for combi in self.all_combinations}
+        self.matchups = {(combi[0].name,combi[1].name):(0,0,0) for combi in self.all_combinations}
                 
         #reset times
         for player in self.players:
-            self.times[player.className()] = 0 
+            self.times[player.name] = 0 
             
         #startscores    
         self.saveScores()
@@ -283,19 +283,23 @@ def main():
   
     #define players
     #players.append(bots.Player())    
-    #players.append(bots.BasicPlayer())
+    players.append(bots.BasicPlayer())
     #players.append(bots.MirrorBot())    
-    #players.append(bots.RandomPlayer()) 
+    #♦players.append(bots.RandomPlayer()) 
     #players.append(bots.ImprovedRandomPlayer())
     
     import ReinjanBots
     import EmielsBots
+    #import MyBots
 
     ##VOEG HIER U BOT TOE##
-    players.append(EmielsBots.EmielsPlayer())   
-    players.append(ReinjanBots.BotToBeat2())   
-    players.append(ReinjanBots.BotToBeat3())  
-    players.append(ReinjanBots.BotToBeat4())
+    players.append(EmielsBots.EmielsPlayer())       
+    players.append(ReinjanBots.CalcBot()) 
+    players.append(ReinjanBots.BasePlayer()) 
+    #players.append(ReinjanBots.SpeedyRandomPlayer())
+    #players.append(ReinjanBots.BotToBeat4(name='ohno',values=(1,0,0))) 
+    #players.append(MyBots.BotToBeat2())  
+    
     
     #start tornooi
 

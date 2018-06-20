@@ -15,8 +15,8 @@ import tornooi
 
 class EmielsPlayer(bots.Player):
     
-    def className(self):
-        return 'EmielsPlayer'
+    def __init__(self):
+        self.name = 'EmielsPlayer'
     
     def slotNr(self, kolom, rij):
         return kolom + (rij -1)* x4.COLS

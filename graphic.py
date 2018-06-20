@@ -37,24 +37,23 @@ class GraphicGame(x4.Game):
         board.draw(self.win)
         
         
-        label = g.Text(g.Point(WIDTH + MARGIN, MARGIN), players[0].className())
+        label = g.Text(g.Point(WIDTH + MARGIN, MARGIN), players[0].name)
         label.setStyle("bold")
         label.setFill(COLORS[0])
         label.draw(self.win)
         
         for x in range(len(players)):
-            label = g.Text(g.Point(WIDTH + MARGIN, MARGIN*(x+1)), players[x].className())
+            label = g.Text(g.Point(WIDTH + MARGIN, MARGIN*(x+1)), players[x].name)
             label.setStyle("bold")
             label.setFill(COLORS[x])
             label.draw(self.win)
         
         
     def move(self,player):
-        self.draw_state(self.state)
-        
-        result = super(GraphicGame,self).move(player)        
         
         self.win.getMouse()
+        result = super(GraphicGame,self).move(player)             
+        self.draw_state(self.state)
         #win.close()
         return result
     

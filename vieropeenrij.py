@@ -24,6 +24,8 @@ LOSE = -1
 DRAW = 0
 
 def test():    
+    
+    
     #testfunctie die alle mogelijke combinatie uitprobeert
     import itertools
     #empty field
@@ -39,11 +41,64 @@ def test():
             #set to sign
             test_state[field] = SIGNS[0]
         #test if combination is connected   
-        if controle_all(test_state):
+        array = stateToArray(test_state)
+        if controle_all(test_state) != controleArray(array):            
             print(combi)
-            print(print_rijen(test_state))   
+            print(print_rijen(test_state)) 
+            print(array)
+            
+def stateToArray(state):
+    result = []
+    for x in range(ROWS):        
+        c = state[x*COLS:x*COLS+COLS]
+        result.append(c)
+            
+    return result
+        
+    result = []
+    for col in range(1,COLS+1):
+        c = []
+        result.append(c)
+        for row in range(1,ROWS+1):
+            c.append(state[(col)*(row)-1])  
+    return result                  
+            
+        
 
 #controles
+    
+def listRijenArray(array):
+    rijen = []
+    
+    #rijen
+    for i in range(ROWS):        
+        rijen.append( list ((array[i][x],i,x) for x in range(COLS)))
+    
+    #kolommen    
+    for i in range(COLS):
+        rijen.append( list ((array[y][i],y,i) for y in range(ROWS)))
+    
+    #digonaal positieve offset       
+    for i in range(0-TARGET,COLS):                           
+        rij = list ((array[i+x][x],i+x,x) for x in range(COLS) if i+x>=0 and i+x<ROWS )
+        if len(rij)>=TARGET:
+            rijen.append(rij)
+    
+    #digonaal positieve offset       
+    for i in range(COLS+TARGET):   
+        rij = list ((array[i-x][x],i-x,x) for x in range(COLS) if i-x>=0 and i-x<ROWS) 
+        if len(rij)>=TARGET:
+            rijen.append(rij)
+    
+    return rijen    
+
+def controleArray(array):
+    for rij in listRijenArray(array):
+        if controleRijArray(rij):
+            return True           
+
+
+
 def listRijen(state):
     rijen = []
     
@@ -73,27 +128,36 @@ def listRijen(state):
     
     return rijen
 
-def controle(rij):
+def controleRij(rij):
     for x in range(len(rij)-(TARGET-1)):
         if rij[x:x+TARGET].count(rij[x]) >= TARGET and rij[x]!=NEUTRAL:
             return True
+        
+def controleRijArray(rij):   
+    for sign in SIGNS:
+        for x in range (len(rij)-(TARGET-1)):
+            rij_deel = rij[x:TARGET+x]
+            nodes = list(node[0] for node in rij_deel)
+            if (nodes.count(sign) >= TARGET) :
+                return True
+    
             
 def controle_all(state):
     for rij in listRijen(state):
-        if controle(rij):
+        if controleRij(rij):
             return True
 
 def controle_rijen(state):
     for i in range(ROWS):        
         rij = list (x for x in state[i*COLS:i*COLS+COLS])
-        if controle(rij):
+        if controleRij(rij):
             log.debug('WIN op rij {0!s} : {1!s}'.format(i+1,rij))
             return True         
         
 def controle_kolommen(state):
     for i in range(COLS):
         rij = list (x for x in state[i::COLS])        
-        if controle(rij):
+        if controleRij(rij):
             log.debug('WIN op kolom {0!s} : {1!s}'.format(i+1,rij))  
             return True
        
@@ -101,26 +165,26 @@ def controle_diagonalen(state):
     #positieve offset       
     for i in range(COLS-(TARGET-1)):             
         rij = list (state[i:COLS*(COLS-i):COLS + 1 ])       
-        if controle(rij):
+        if controleRij(rij):
             log.debug('WIN op diagonaal-bergaf {0!s} : {1!s}'.format(i+1,rij))
             return True
         
     for i in range(0,ROWS-TARGET):        
         rij = list (state[COLS*(i+1)::COLS + 1 ])       
-        if controle(rij):
+        if controleRij(rij):
             log.debug('WIN op diagonaal-bergaf {0!s} : {1!s}'.format(i+1,rij))  
             return True
         
     #negatieve offset     
     for i in range(COLS-(TARGET-1)):             
         rij = list (state[i+TARGET:COLS*(COLS-i):COLS - 1 ])       
-        if controle(rij):
+        if controleRij(rij):
             log.debug('WIN op diagonaal-bergop {0!s} : {1!s}'.format(i+1,rij))      
             return True
         
     for i in range(1,ROWS-TARGET+1):        
         rij = list (state[COLS*(i+1)-1::COLS - 1 ])       
-        if controle(rij):
+        if controleRij(rij):
             log.debug('WIN op diagonaal-bergop {0!s} : {1!s}'.format(i+1,rij))   
             return True
         
@@ -161,7 +225,7 @@ class Game():
         
         self.times = {}
         for player in players:
-            self.times[player.className()] = 0
+            self.times[player.name] = 0
         
         #reset bord
         self.state = [NEUTRAL for x in range(MAX_RANGE)]  
@@ -174,17 +238,27 @@ class Game():
         #self.signs[players[1]] = SIGNS[1]
     
     
-    def move(self,player):
+    def turn(self,player):
         start_time = time.time()  
         #speler maakt move
-        col = player.makeMove(self.state.copy(),self.moves.copy())        
-        self.moves.append(col)
+        col = player.makeMove(self.state.copy(),self.moves.copy()) 
         end_time = time.time() - start_time 
-        self.times[player.className()] += end_time
-        #controle op legal move
+        self.times[player.name] += end_time
+
+        #col toevoegen aan moves
         log.debug(player.sign+':'+str(col))
-        return addCoinTostate(self.state,col,player.sign)
-      
+        self.moves.append(col)
+        
+        #controle op legal move 
+        if col == None:
+            return False
+        if (col >= COLS) or (col<0):
+            return False
+        #controle of col nog niet vol is
+        if self.moves.count(col) > ROWS:
+            return False
+        
+        return addCoinTostate(self.state,col,player.sign)      
         
     def play(self):       
         def playthrough(): 
@@ -193,7 +267,7 @@ class Game():
             other_player = self.players[1]
             #maximum aantal zetten        
             for x in range(MAX_RANGE):            
-                if not self.move(active_player):
+                if not self.turn(active_player):
                     #illegal move
                     return LOSE,other_player,active_player
                 elif controle_all(self.state):
