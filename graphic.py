@@ -8,7 +8,7 @@ Created on Mon Apr 30 23:36:31 2018
 '''A simple graphics example constructs a face from basic shapes.
 '''
 
-import graphic as g
+import graphics as g
 import vieropeenrij as x4
 
 WIDTH = 640
@@ -49,10 +49,10 @@ class GraphicGame(x4.Game):
             label.draw(self.win)
         
         
-    def move(self,player):
+    def turn(self,player):
         
         self.win.getMouse()
-        result = super(GraphicGame,self).move(player)             
+        result = super(GraphicGame,self).turn(player)             
         self.draw_state(self.state)
         #win.close()
         return result

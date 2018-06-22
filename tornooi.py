@@ -284,14 +284,13 @@ def main():
     #define players
     #players.append(bots.Player())    
     players.append(bots.BasicPlayer())
-    #players.append(bots.MirrorBot())    
-    #♦players.append(bots.RandomPlayer()) 
+    players.append(bots.MirrorBot())    
+    players.append(bots.RandomPlayer()) 
     #players.append(bots.ImprovedRandomPlayer())
     
     import ReinjanBots
     import EmielsBots
-    #import MyBots
-
+    #import MyBotsf
     ##VOEG HIER U BOT TOE##
     players.append(EmielsBots.EmielsPlayer())       
     players.append(ReinjanBots.CalcBot()) 
