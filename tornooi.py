@@ -276,6 +276,8 @@ class Tornooi:
                          
 
 def main():   
+    
+    
 
     import timing
     aantal_rondes = 100
@@ -284,18 +286,18 @@ def main():
     #define players
     #players.append(bots.Player())    
     players.append(bots.BasicPlayer())
-    players.append(bots.MirrorBot())    
-    players.append(bots.CopyBot())
-    players.append(bots.RandomPlayer()) 
+    #players.append(bots.MirrorBot())    
+    #players.append(bots.CopyBot())
+    #players.append(bots.RandomPlayer()) 
     #players.append(bots.ImprovedRandomPlayer())
     
     import ReinjanBots
-    #import EmielsBots    
+    import EmielsBots    
 
     ##VOEG HIER U BOT TOE##
-    #players.append(EmielsBots.EmielsPlayer())       
+    players.append(EmielsBots.EmielsPlayer())       
     players.append(ReinjanBots.Calculot()) 
-    players.append(ReinjanBots.BasePlayer()) 
+    players.append(ReinjanBots.GridBot()) 
     players.append(ReinjanBots.SpeedyRandomPlayer()) 
     
     #start tornooi
