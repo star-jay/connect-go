@@ -73,13 +73,16 @@ class BasePlayer(bots.Player):
 
     def random_move(self,game_state,cols):        
         random.shuffle(cols)
+        #if len(cols) == 0:
+        #    return 0
+            
         return cols.pop()        
             
     #zoek winnende move        
     def findCol(self,array,moves,cols,nodes):
          
         #nodes die bespeelt worden                
-        #wildcard spelen
+        #wildcard spelen        
         
         for col,row in nodes.items():
             array[row][col] = self.WILDCARD             
@@ -92,7 +95,8 @@ class BasePlayer(bots.Player):
         
         #quickblock tegenstander
         col = quickBlock(array,cols,self.sign,self.WILDCARD)
-        if col != None: return col
+        if col != None: 
+            return col
     
     
     def makeMove(self,game_state,moves): 
@@ -107,19 +111,19 @@ class BasePlayer(bots.Player):
         nodes = {x: moves.count(x) for x in cols}
         
         #array van gamestate bacause
-        array = x4.stateToArray(game_state) 
+        #array = x4.stateToArray(game_state) 
         #winning move
-        col = self.findCol(array,moves,cols,nodes)
+        col = self.findCol(game_state,moves,cols,nodes)
         if col != None:
             return col
 
         #random kolom
         return self.random_move(game_state,cols)
 
-class CalcBot(BasePlayer):  
+class Calculot(BasePlayer):  
     
-    def __init__(self,name='CalcBot',values=(2,2,1,2)):
-        super(CalcBot,self).__init__(name)
+    def __init__(self,name='Calculot',values=(2,2,1,2)):
+        super(Calculot,self).__init__(name)
         
         self.startvalues = values
         
@@ -160,7 +164,7 @@ class CalcBot(BasePlayer):
             return score
         
         #kjiken naar win condition
-        col = super(CalcBot,self).findCol(array,moves,cols,nodes)
+        col = super(Calculot,self).findCol(array,moves,cols,nodes)
         if col != None: return col
             
         
@@ -190,7 +194,7 @@ class CalcBot(BasePlayer):
 class GridBot(BasePlayer):  
     
     def __init__(self,name='CalcBot',values=(2,2,1,2)):
-        super(CalcBot,self).__init__(name)
+        super(Calculot,self).__init__(name)
         
         self.startvalues = values     
 
@@ -215,21 +219,18 @@ class SpeedyRandomPlayer(BasePlayer):
             return col
         
         random.shuffle(cols)
-        cols.pop()
+        return cols.pop()
         
         
         
 if __name__ == '__main__':
     #player2 = MonteCarlo()    
-    
-    
-    import EmielsBots
-    
+        
     import graphic
     random.seed(1)
     players = []
-    players.append(CalcBot()) 
-    players.append(EmielsBots.EmielsPlayer())
+    players.append(Calculot()) 
+    players.append(bots.MirrorBot())
     #players.append(CalcBot())
     
     game = graphic.GraphicGame(players)

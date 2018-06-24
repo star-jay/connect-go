@@ -285,23 +285,20 @@ def main():
     #players.append(bots.Player())    
     players.append(bots.BasicPlayer())
     players.append(bots.MirrorBot())    
+    players.append(bots.CopyBot())
     players.append(bots.RandomPlayer()) 
     #players.append(bots.ImprovedRandomPlayer())
     
     import ReinjanBots
-    import EmielsBots
-    #import MyBotsf
+    #import EmielsBots    
+
     ##VOEG HIER U BOT TOE##
-    players.append(EmielsBots.EmielsPlayer())       
-    players.append(ReinjanBots.CalcBot()) 
+    #players.append(EmielsBots.EmielsPlayer())       
+    players.append(ReinjanBots.Calculot()) 
     players.append(ReinjanBots.BasePlayer()) 
-    #players.append(ReinjanBots.SpeedyRandomPlayer())
-    #players.append(ReinjanBots.BotToBeat4(name='ohno',values=(1,0,0))) 
-    #players.append(MyBots.BotToBeat2())  
-    
+    players.append(ReinjanBots.SpeedyRandomPlayer()) 
     
     #start tornooi
-
     tornooi = Tornooi(players,aantal_rondes)
     tornooi.run()       
     timing.endlog()
