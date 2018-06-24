@@ -119,6 +119,8 @@ class BasePlayer(bots.Player):
 
         #random kolom
         return self.random_move(game_state,cols)
+    
+
 
 class Calculot(BasePlayer):  
     
@@ -191,13 +193,164 @@ class Calculot(BasePlayer):
         #depseration move    
         return cols.pop()
     
-class GridBot(BasePlayer):  
-    
-    def __init__(self,name='CalcBot',values=(2,2,1,2)):
-        super(Calculot,self).__init__(name)
-        
-        self.startvalues = values     
+"""
+score voor aantal nodes erboven?
+aantal nodes opzij?
+position score
 
+alle nodes hebben 8 scores : voor de 8 richtingen vertrekkende uit de node
+(extra punten voor chains?)
+
+- rijen opsommen van 4
+- rijen waar node in voorkomt
+- als rij nog speelbaar is + punten
+- als tegenstander speelt : bepaalde rijen schrappen
+- als er al node in rij zit : naar gechrapte rijen
+- anders naar rijen van tegenstander
+
+als een node gespeeld wordt : omringende nodes scores aanpassen
+
+scores berekenen voor speelbare nodes en erboven
+
+kijken wat hoogste score is
+
+next level : 
+
+score van tegenstander bekijken
+als total score of max score hoger is dan andere kolom zoeken
+
+"""
+
+def listRijenArray(array):
+    rijen = []
+    
+    #rijen
+    for row in range(x4.ROWS):        
+        rijen.append( list ((row,col) for col in range(x4.COLS)))
+    
+    #kolommen    
+    for col in range(x4.COLS):
+        rijen.append( list ((row,col) for row in range(x4.ROWS)))
+    
+    #digonaal positieve offset       
+    for i in range(0-x4.TARGET,x4.COLS):                           
+        rij = list ((i+x,x) for x in range(x4.COLS) if i+x>=0 and i+x<x4.ROWS )
+        if len(rij)>=x4.TARGET:
+            rijen.append(rij)
+    
+    #digonaal positieve offset       
+    for i in range(x4.COLS+x4.TARGET):   
+        rij = list ((i-x,x) for x in range(x4.COLS) if i-x>=0 and i-x<x4.ROWS) 
+        if len(rij)>=x4.TARGET:
+            rijen.append(rij)
+    
+    return rijen    
+
+class GridBot(BasePlayer):
+    def __init__(self,name='GridBot'):
+        super(GridBot,self).__init__(name)
+        
+    def opening(self,game_state,moves):
+        return None
+    
+    #initieele waardes
+    def startgame(self,sign):
+        #basic move         
+        self.sign = sign
+        
+        state = list(x4.NEUTRAL for x in range(x4.MAX_RANGE))
+        array = x4.stateToArray(state)
+        
+        listr = listRijenArray(array)
+        self.list_r = []
+        for rij in listr:            
+            for x in range (len(rij)-(x4.TARGET-1)):
+                 self.list_r.append(rij[x:x4.TARGET+x])
+                
+        
+        self.av_r = []
+        self.opp_av_r = []
+        for row in self.list_r:
+            log.debug(row)
+            self.av_r.append(row)
+            self.opp_av_r.append(row)
+        
+        #self.node_rows = {node:[] for node in nodes}
+        #for row in self.av_r:
+        #	for node in row:
+        #		node_rows[node].append(row)
+        self.node_rows = {}
+        for col in range(x4.COLS):
+            for row in range (x4.ROWS):
+                self.node_rows[(row,col)] = list (rij for rij in self.list_r if (row,col) in rij)
+                
+        for col in range(x4.COLS):
+            log.debug('{}:{}'.format((0,col),self.node_rows[0,col]))
+        
+            
+                
+        #zoek winnende move        
+    def findCol(self,array,moves,cols,nodes):
+        
+        for col,row in nodes.items():
+            array[row][col] = self.WILDCARD
+        
+        #kjiken naar win condition
+        col = super(GridBot,self).findCol(array,moves,cols,nodes)
+        if col != None: return col
+        
+        #opp move	
+        if len(moves)>0:
+            move = moves.pop()
+            row = moves.count(move)
+            for rij in self.node_rows[row,move]:
+                if rij in self.av_r:
+                    self.av_r.remove(rij)
+        
+        #my last	move
+        if len(moves)>0:
+            move = moves.pop()
+            row = moves.count(move)
+            for rij in self.node_rows[row,move]:
+                if rij in self.opp_av_r:
+                    self.opp_av_r.remove(rij)
+        
+        
+        #score berekenen mijzelf
+        if False:
+            scores = {}
+            for col,row in nodes.items():
+                rijen = [rij for rij in self.node_rows[row,col] if rij in self.av_r] 
+                aantal_rijen = len(rijen)
+                som_van_rijen = 0
+                max_score = 0
+                for rij in rijen:
+                    score_rij = list( array[x][y] for x,y in rij).count(self.sign)
+                    som_van_rijen += score_rij
+                    if score_rij>max_score: max_score = score_rij
+                
+                scores[col] = aantal_rijen + som_van_rijen + max_score
+            
+        #score berekenen opponent
+        
+        scores = {}
+        for col,row in nodes.items():
+            rijen = [rij for rij in self.node_rows[row,col] if rij in self.opp_av_r] 
+            aantal_rijen = len(rijen)
+            som_van_rijen = 0
+            max_score = 0
+            for rij in rijen:
+                score_rij = list( array[x][y] for x,y in rij).count(x4.revertsign(self.sign))
+                som_van_rijen += score_rij
+                if score_rij>max_score: max_score = score_rij
+            
+            scores[col] = aantal_rijen + som_van_rijen + max_score
+            
+        for col,score in scores.items():
+            log.debug('Col:{} - Score {}'.format(col,score))
+        return max(scores, key=scores.get)       
+              
+            
     
 class SpeedyRandomPlayer(BasePlayer):
     
@@ -227,10 +380,11 @@ if __name__ == '__main__':
     #player2 = MonteCarlo()    
         
     import graphic
-    random.seed(1)
+    #random.seed(1)
     players = []
-    players.append(Calculot()) 
-    players.append(bots.MirrorBot())
+    players.append(Calculot())
+    players.append(GridBot()) 
+    
     #players.append(CalcBot())
     
     game = graphic.GraphicGame(players)

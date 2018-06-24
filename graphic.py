@@ -53,14 +53,14 @@ class GraphicGame(x4.Game):
         
         self.win.getMouse()
         result = super(GraphicGame,self).turn(player)             
-        self.draw_state(self.state)
+        self.draw_array(self.array)
         #win.close()
         return result
     
     def play(self):        
         
         super(GraphicGame,self).play() 
-        self.draw_state(self.state)
+        self.draw_array(self.array)
         self.win.getMouse()
         self.win.close()
         
@@ -85,6 +85,25 @@ class GraphicGame(x4.Game):
                         head = g.Circle(g.Point(x*(MARGIN+RADIUS), y*(MARGIN+RADIUS)), RADIUS) # set center and radius
                         head.setFill(COLORS[i])
                         head.draw(self.win)
+    
+    def draw_array(self,array):
+        #omdraaien
+        array = array[::-1]        
+                    
+        for row in range(len(array)):
+            for col in range (len(array[row])):
             
+                if array[row][col] == x4.NEUTRAL:
+                    head = g.Circle(g.Point((col+1)*(MARGIN+RADIUS), (row+1)*(MARGIN+RADIUS)), RADIUS) # set center and radius
+                    head.setFill("white")
+                    head.draw(self.win)
+                
+                else:
+                    for i in range (len(x4.SIGNS)):                   
+                
+                        if array[row][col] == x4.SIGNS[i]:
+                            head = g.Circle(g.Point((col+1)*(MARGIN+RADIUS), (row+1)*(MARGIN+RADIUS)), RADIUS) # set center and radius
+                            head.setFill(COLORS[i])
+                            head.draw(self.win)
         
 

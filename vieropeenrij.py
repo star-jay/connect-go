@@ -71,8 +71,8 @@ def listRijenArray(array):
     rijen = []
     
     #rijen
-    for i in range(ROWS):        
-        rijen.append( list ((array[i][x],i,x) for x in range(COLS)))
+    for row in range(ROWS):        
+        rijen.append( list ((array[row][col],row,col) for col in range(COLS)))
     
     #kolommen    
     for i in range(COLS):
@@ -286,11 +286,17 @@ class Game():
         
         #controle op legal move 
         if col == None:
+            log.info('Geen move gemaakt door {}({}) in game tegen {} :'.format(player.name,player.sign, str(opponent.name for opponent in self.players if opponent != player)))
+            
             return False
         if (col >= COLS) or (col<0):
+            log.info('ongeldige move gemaakt door {}({}) in game tegen {} :'.format(player.name,player.sign, str(opponent.name for opponent in self.players if opponent != player)))
+            
             return False
         #controle of col nog niet vol is
         if self.moves.count(col) > ROWS:
+            log.info('ongeldige move(col is vol) door  {}({}) in game tegen {} :'.format(player.name,player.sign, str(opponent.name for opponent in self.players if opponent != player)))
+            
             return False
         
         #return addCoinTostate(self.state,col,player.sign) 
