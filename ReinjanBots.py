@@ -381,8 +381,8 @@ class TrapBot(BasePlayer):
             self.av_r.append(row)
             self.opp_av_r.append(row)
 		
-		self.scores_row = {row:0 for row in self.list_r} 
-		self.opp_scores_row = self.scores_row.copy()		
+        self.scores_row = {row:0 for row in self.list_r} 
+        self.opp_scores_row = self.scores_row.copy()		
         
         self.node_rows = {}
         for col in range(x4.COLS):
@@ -396,16 +396,16 @@ class TrapBot(BasePlayer):
         def score_rij(rij):
             return list( array[x][y] for x,y in rij).count(self.sign)
         
-		nodes = list( row,col for col,row in nodes.items)
+        nodes = list( ((row,col) for col,row in nodes.items()))
 		
         #opp move - hoogste score bijhouden
         if len(moves)>0:
             move = moves.pop()
             row = moves.count(move)
             for rij in self.node_rows[row,move]:
-				if self.opp_scores_row[rij] != -1: 
-					self.opp_scores_row[rij] +=1
-				self.scores_row[rij] =-1
+                if self.opp_scores_row[rij] != -1: 
+                    self.opp_scores_row[rij] +=1
+                    self.scores_row[rij] =-1
                 if rij in self.av_r:
                     self.av_r.remove(rij)
         
@@ -414,34 +414,35 @@ class TrapBot(BasePlayer):
             move = moves.pop()
             row = moves.count(move)
             for rij in self.node_rows[row,move]:
-				self.opp_scores_row[rij] =-1
-				if self.opp_scores_row[rij] != -1:
-					score = self.scores_row[rij] =+1
+                self.opp_scores_row[rij] =-1
+                if self.opp_scores_row[rij] != -1:
+                    score = self.scores_row[rij] =+1
 					#kijken of kan winnen
-					if score >= x4.TARGET-1:
-						for node in rij: 
-							if node in nodes: # kan zijn dat node nog niet bespeelbaar is, dan moet is het een target kolom/winning node
-								return node[1]
-                if rij in self.opp_av_r:
-                    self.opp_av_r.remove(rij)
+                if score >= x4.TARGET-1:
+						
+                    for node in rij: 
+                        if node in nodes: # kan zijn dat node nog niet bespeelbaar is, dan moet is het een target kolom/winning node
+                            return node[1]
+                    if rij in self.opp_av_r:
+                        self.opp_av_r.remove(rij)
                    
 					   
         #opp_win, kan al gecontroleerd zijn
-		for node in nodes:
-			for row in node_rows[node]:
-				if opp_score_rij[row] = x4.TARGET-1:
-					return node[1]
+        for node in nodes:
+            for row in node_rows[node]:
+                if opp_score_rij[row] == x4.TARGET-1:
+                    return node[1]
 					
 					
         #sorteer rijen
 		#trap is kijken voor welke node er de hoogste scores zijn
         for node in nodes: 
-			aantal = 0
+            aantal = 0
             for rij in self.node_rows[node]: 
-				if self.score_rij[rij]>=x4.TARGET-2: 
-					aantal += 1 
+                if self.score_rij[rij]>=x4.TARGET-2: 
+                    aantal += 1 
             if aantal >=2:
-				return node[1]#col
+                return node[1]#col
             
 
         
