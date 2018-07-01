@@ -7,6 +7,7 @@ Created on Tue Apr 24 15:22:19 2018
 
 import logging as log
 import time
+import traceback
 
 #DIMENSIONS
 ROWS = 6
@@ -270,6 +271,7 @@ class Game():
             col = player.makeMove(array_copy,self.moves.copy()) 
         except Exception as e:
             log.error('Fout {} door {}({}) in game tegen {} :'.format(e,player.name,player.sign, str(opponent.name for opponent in self.players if opponent != player)))
+            log.error(traceback.format_exc())
             for rij in self.array:
                 log.info(rij)
             end_time = time.time() - start_time 

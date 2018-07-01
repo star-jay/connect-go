@@ -290,9 +290,7 @@ class GridBot(BasePlayer):
             
                 
         #zoek winnende move        
-    def findCol(self,array,moves,cols,nodes):
-        def score_rij(rij):
-            return list( array[x][y] for x,y in rij).count(self.sign)
+    def findCol(self,array,moves,cols,nodes):       
             
         
         for col,row in nodes.items():
@@ -320,7 +318,7 @@ class GridBot(BasePlayer):
                     
         
         #score berekenen mijzelf
-        if False:
+        if True:
             scores = {}
             for col,row in nodes.items():
                 rijen = [rij for rij in self.node_rows[row,col] if rij in self.av_r] 
@@ -328,9 +326,9 @@ class GridBot(BasePlayer):
                 som_van_rijen = 0
                 max_score = 0
                 for rij in rijen:
-                    score_rij = list( array[x][y] for x,y in rij).count(self.sign)
-                    som_van_rijen += score_rij
-                    if score_rij>max_score: max_score = score_rij
+                    score_r = list( array[x][y] for x,y in rij).count(self.sign)
+                    som_van_rijen += score_r
+                    if score_r>max_score: max_score = score_r
                 
                 scores[col] = aantal_rijen + som_van_rijen + max_score
             
@@ -343,9 +341,9 @@ class GridBot(BasePlayer):
             som_van_rijen = 0
             max_score = 0
             for rij in rijen:
-                score_rij = list( array[x][y] for x,y in rij).count(x4.revertsign(self.sign))
-                som_van_rijen += score_rij
-                if score_rij>max_score: max_score = score_rij
+                score_r = list( array[x][y] for x,y in rij).count(x4.revertsign(self.sign))
+                som_van_rijen += score_r
+                if score_r>max_score: max_score = score_r
             
             scores[col] = aantal_rijen + som_van_rijen + max_score
             
@@ -353,9 +351,11 @@ class GridBot(BasePlayer):
             log.debug('Col:{} - Score {}'.format(col,score))
         return max(scores, key=scores.get)       
 
-class TrapBot(BasePlayer):
-    def __init__(self,name='TrapBot'):
-        super(TrapBot,self).__init__(name)
+class TrapBot(bots.Player):
+    def __init__(self,name='TrapBot',mode=(4, 3, 2, 1, 0, 5) ):
+        super(TrapBot,self).__init__()
+        self.mode = mode
+        self.name=name
         
     def opening(self,game_state,moves):
         return None
@@ -372,7 +372,7 @@ class TrapBot(BasePlayer):
         self.list_r = []
         for rij in listr:            
             for x in range (len(rij)-(x4.TARGET-1)):
-                 self.list_r.append(rij[x:x4.TARGET+x])
+                 self.list_r.append(tuple(rij[x:x4.TARGET+x]))
                 
         
         self.av_r = []
@@ -388,97 +388,165 @@ class TrapBot(BasePlayer):
         for col in range(x4.COLS):
             for row in range (x4.ROWS):
                 self.node_rows[(row,col)] = list (rij for rij in self.list_r if (row,col) in rij)
+
+        self.blocked_cols=[]
+        self.blocked_cols_opp=[]
+        self.target_cols=[]
         
-		
+        for rij in self.node_rows[0,3]:         
                 
-        #zoek winnende move        
-    def findCol(self,array,moves,cols,nodes):
-        def score_rij(rij):
-            return list( array[x][y] for x,y in rij).count(self.sign)
+            log.debug('Rij:{} - Score : {}'.format(rij,self.scores_row[rij]) )
+            
+    def process_move(self,move,moves):
+        #my last move - kijken of kan winnen        
+        if move in self.blocked_cols: self.blocked_cols.remove(move)
         
-        nodes = list( ((row,col) for col,row in nodes.items()))
+        row = moves.count(move)
+        
+        for rij in self.node_rows[row,move]:
+            self.opp_scores_row[rij] = -1
+            if self.scores_row[rij] != -1:
+                self.scores_row[rij] += 1
+                
+			  #kijken of kan winnen                    
+            log.info('Rij:{} - Score : {}'.format(rij,self.scores_row[rij])   )
+                
+            if self.scores_row[rij] >= x4.TARGET-1:		
+                #controle of geen vert rij is
+                if rij[0][1] != rij[1][1]:				
+                    for node in rij: 
+                        #if node in nodes_l: # kan zijn dat node nog niet bespeelbaar is, dan moet is het een target kolom/winning node
+                        if (moves.count(node[1]) == node[0]-1) and (node[1] not in self.blocked_cols) :                           
+                        #if (node[1] in nodes) and (nodes[node[1]] == node[0]-1):
+                            log.debug('Col:{} - Blocked for row:{}'.format(node[1],rij))
+                            self.blocked_cols.append(node[1])
+                            #block col
+            if rij in self.opp_av_r:
+                self.opp_av_r.remove(rij)
+    
+         
+    def makeMove(self,game_state,moves): 
+        #geen openening move
+                
+        #kolommen waar er nog geen maximum aantal zetten in gespeeld zijn
+        cols = [x for x in range(x4.COLS) if moves.count(x) < x4.ROWS ]     
+        
+        #dict met beschikbare nodes
+        nodes = {x: moves.count(x) for x in cols}
+        
+        #col zoeken 
+        col = self.findCol(game_state,moves,cols,nodes)
+
+        #random kolom
+        if col == None:
+            col = self.random_move(game_state,cols)
+            
+        #mijn move verwerken    
+        self.process_move(col,moves)
+    
+        return col
+                
+              
+    def findCol(self,array,moves,cols,nodes):
+                
+        nodes_l = list(( (row,col) for col,row in nodes.items() if col not in self.blocked_cols))
 		
         #opp move - hoogste score bijhouden
         if len(moves)>0:
-            move = moves.pop()
-            row = moves.count(move)
+            move = moves[-1]
+            if move in self.blocked_cols:                
+                
+                self.blocked_cols.remove(move)
+                if moves.count(move)<x4.ROWS:
+                    log.info('Return Col({}), Opp played blocked col'.format(move))
+                    #return move
+                
+            row = moves.count(move)-1
+            log.info('row:{} - col:{}'.format(row,move))
             for rij in self.node_rows[row,move]:
                 if self.opp_scores_row[rij] != -1: 
-                    self.opp_scores_row[rij] +=1
-                    self.scores_row[rij] =-1
+                    self.opp_scores_row[rij] += 1
+                    self.scores_row[rij] = -1
                 if rij in self.av_r:
                     self.av_r.remove(rij)
+                log.info('Rij:{} - Score:{}'.format(rij,self.opp_scores_row[rij]))
+                if self.opp_scores_row[rij] >= x4.TARGET-1:
+                    #controle of geen vert rij is
+                    if rij[0][1] != rij[1][1]:						
+                        for node in rij: 
+                            #if node in nodes_l: # kan zijn dat node nog niet bespeelbaar is, dan moet is het een target kolom/winning node
+                            if (moves.count(node[1]) == node[0]-1) and (node[1] not in self.blocked_cols_opp) :                           
+                            #if (node[1] in nodes) and (nodes[node[1]] == node[0]-1):
+                                log.info('Col:{} - Opp Blocked row:{}'.format(node[1],rij))
+                                self.blocked_cols_opp.append(node[1])
+					
+        #zelf win, kan al gecontroleerd zijn
+        for node in nodes_l:
+            for rij in self.node_rows[node]:                
+                if self.scores_row[rij] == x4.TARGET-1:                    
+                    log.info('Return Col({}), WIN rij:{}'.format(node[1],rij))
+                    return node[1]
         
-        #my last move - kijken of kan winnen
-        if len(moves)>0:
-            move = moves.pop()
-            row = moves.count(move)
-            for rij in self.node_rows[row,move]:
-                self.opp_scores_row[rij] =-1
-                if self.opp_scores_row[rij] != -1:
-                    score = self.scores_row[rij] =+1
-					#kijken of kan winnen
-                if score >= x4.TARGET-1:
-						
-                    for node in rij: 
-                        if node in nodes: # kan zijn dat node nog niet bespeelbaar is, dan moet is het een target kolom/winning node
-                            return node[1]
-                    if rij in self.opp_av_r:
-                        self.opp_av_r.remove(rij)
-                   
-					   
         #opp_win, kan al gecontroleerd zijn
-        for node in nodes:
-            for row in node_rows[node]:
-                if opp_score_rij[row] == x4.TARGET-1:
+        for node in nodes_l:
+            for row in self.node_rows[node]:
+                if self.opp_scores_row[row] == x4.TARGET-1:
+                    log.debug('Opp wil winnen col:{}'.format(node[1]))
+                    log.info('Return Col({}), Block tegenstander'.format(node[1]))
                     return node[1]
 					
 					
         #sorteer rijen
-		#trap is kijken voor welke node er de hoogste scores zijn
-        for node in nodes: 
+		 #trap is kijken voor welke node er de hoogste scores zijn
+        for node in nodes_l: 
             aantal = 0
             for rij in self.node_rows[node]: 
-                if self.score_rij[rij]>=x4.TARGET-2: 
+                if self.scores_row[rij]>=x4.TARGET-2: 
                     aantal += 1 
             if aantal >=2:
+                log.info('Return Col({}), Trap tegenstander'.format(node[1]))
                 return node[1]#col
             
-
+        nodes_l = list(node for node in nodes_l if node[1] not in self.blocked_cols and node[1] not in self.blocked_cols_opp)
         
-        #score berekenen mijzelf
-        if False:
-            scores = {}
-            for node in nodes.items():
-                rijen = [rij for rij in self.node_rows[node] if rij in self.av_r] 
-                aantal_rijen = len(rijen)
-                som_van_rijen = 0
-                max_score = 0
-                for rij in rijen:
-                    score_rij = list( array[x][y] for x,y in rij).count(self.sign)
-                    som_van_rijen += score_rij
-                    if score_rij>max_score: max_score = score_rij
-                
-                scores[nodes[1]] = aantal_rijen + som_van_rijen + max_score
+        
             
-        #score berekenen opponent
-        
+        #score berekenen opponent        
         scores = {}
-        for node in nodes:
-            rijen = [rij for rij in self.node_rows[node] if rij in self.opp_av_r] 
+        for node in nodes_l:       
+            rijen = [rij for rij in self.node_rows[node] if rij in self.av_r] 
             aantal_rijen = len(rijen)
             som_van_rijen = 0
             max_score = 0
             for rij in rijen:
-                score_rij = list( array[x][y] for x,y in rij).count(x4.revertsign(self.sign))
-                som_van_rijen += score_rij
-                if score_rij>max_score: max_score = score_rij
+                score_r = list( array[x][y] for x,y in rij).count(self.sign)
+                som_van_rijen += score_r
+                if score_r>max_score: 
+                    max_score = score_r           
+           
+            rijen_opp = [rij for rij in self.node_rows[node] if rij in self.opp_av_r] 
+            aantal_rijen_opp = len(rijen_opp)
+            som_van_rijen_opp = 0
+            max_score_opp = 0
+            for rij in rijen_opp:
+                score_r = list( array[x][y] for x,y in rij).count(x4.revertsign(self.sign))
+                som_van_rijen_opp += score_r
+                if score_r > max_score_opp: 
+                    max_score_opp = score_r
+                    
+            score_n = som_van_rijen,max_score,aantal_rijen,som_van_rijen_opp,max_score_opp,aantal_rijen_opp 
             
-            scores[nodes[1]] = aantal_rijen + som_van_rijen + max_score
+            scores[node[1]] = tuple(score_n[m] for m in self.mode)
+
             
-        for col,score in scores.items():
-            log.debug('Col:{} - Score {}'.format(col,score))
-        return max(scores, key=scores.get)       
+            
+        if len(scores)>=1:
+            result = max(scores, key=scores.get)    
+            log.info('Return Col({}) with Max score:{}'.format(result,scores[result]))
+            return result
+        else:
+            log.info('geen move gevonden')
+            
               
             
     
@@ -510,10 +578,18 @@ if __name__ == '__main__':
     #player2 = MonteCarlo()    
         
     import graphic
-    #random.seed(1)
+    random.seed(2)
     players = []
+    players.append(BasePlayer())
     players.append(TrapBot())
-    players.append(GridBot()) 
+    
+    import tornooi
+    
+    random.shuffle(players)
+    
+    #t = tornooi.Tornooi(players,30)
+    #t.run()
+    
     
     #players.append(CalcBot())
     
@@ -687,8 +763,7 @@ class BotToBeat3(BotToBeat2):
            
     def findCol(self,game_state,moves,cols):
         def scoreSurrounding(col,row,array):
-            def calcScore(col,row,x,y,array,sign=None):
-                
+            def calcScore(col,row,x,y,array,sign=None):               
                 
                 
                 col = col+x
