@@ -352,7 +352,7 @@ class GridBot(BasePlayer):
         return max(scores, key=scores.get)       
 
 class TrapBot(bots.Player):
-    def __init__(self,name='TrapBot',mode=(4, 3, 2, 1, 0, 5) ):
+    def __init__(self,name='TrapBot',mode=(7,6,4, 3, 2, 1, 0, 5) ):
         super(TrapBot,self).__init__()
         self.mode = mode
         self.name=name
@@ -390,7 +390,7 @@ class TrapBot(bots.Player):
                 self.node_rows[(row,col)] = list (rij for rij in self.list_r if (row,col) in rij)
 
         self.blocked_cols=[]
-        self.blocked_cols_opp=[]
+        self.blocked_cols_opp={}
         self.target_cols=[]
         
         for rij in self.node_rows[0,3]:         
@@ -399,7 +399,8 @@ class TrapBot(bots.Player):
             
     def process_move(self,move,moves):
         #my last move - kijken of kan winnen        
-        if move in self.blocked_cols: self.blocked_cols.remove(move)
+        if move in self.blocked_cols: 
+            self.blocked_cols.remove(move)
         
         row = moves.count(move)
         
@@ -409,7 +410,7 @@ class TrapBot(bots.Player):
                 self.scores_row[rij] += 1
                 
 			  #kijken of kan winnen                    
-            log.info('Rij:{} - Score : {}'.format(rij,self.scores_row[rij])   )
+            log.debug('Rij:{} - Score : {}'.format(rij,self.scores_row[rij])   )
                 
             if self.scores_row[rij] >= x4.TARGET-1:		
                 #controle of geen vert rij is
@@ -418,7 +419,7 @@ class TrapBot(bots.Player):
                         #if node in nodes_l: # kan zijn dat node nog niet bespeelbaar is, dan moet is het een target kolom/winning node
                         if (moves.count(node[1]) == node[0]-1) and (node[1] not in self.blocked_cols) :                           
                         #if (node[1] in nodes) and (nodes[node[1]] == node[0]-1):
-                            log.debug('Col:{} - Blocked for row:{}'.format(node[1],rij))
+                            log.info('Col:{} - Blocked for row:{}'.format(node[1],rij))
                             self.blocked_cols.append(node[1])
                             #block col
             if rij in self.opp_av_r:
@@ -445,6 +446,13 @@ class TrapBot(bots.Player):
         self.process_move(col,moves)
     
         return col
+    
+    def random_move(self,game_state,cols):        
+        random.shuffle(cols)
+        #if len(cols) == 0:
+        #    return 0
+            
+        return cols.pop()        
                 
               
     def findCol(self,array,moves,cols,nodes):
@@ -454,31 +462,31 @@ class TrapBot(bots.Player):
         #opp move - hoogste score bijhouden
         if len(moves)>0:
             move = moves[-1]
-            if move in self.blocked_cols:                
+            if move in self.blocked_cols:               
                 
                 self.blocked_cols.remove(move)
                 if moves.count(move)<x4.ROWS:
                     log.info('Return Col({}), Opp played blocked col'.format(move))
-                    #return move
+                    return move
                 
             row = moves.count(move)-1
-            log.info('row:{} - col:{}'.format(row,move))
+            log.debug('Opp move : row:{} - col:{}'.format(row,move))
             for rij in self.node_rows[row,move]:
                 if self.opp_scores_row[rij] != -1: 
                     self.opp_scores_row[rij] += 1
-                    self.scores_row[rij] = -1
+                self.scores_row[rij] = -1
                 if rij in self.av_r:
                     self.av_r.remove(rij)
-                log.info('Rij:{} - Score:{}'.format(rij,self.opp_scores_row[rij]))
+                log.debug('opp Rij:{} - Score:{}'.format(rij,self.opp_scores_row[rij]))
                 if self.opp_scores_row[rij] >= x4.TARGET-1:
                     #controle of geen vert rij is
                     if rij[0][1] != rij[1][1]:						
                         for node in rij: 
                             #if node in nodes_l: # kan zijn dat node nog niet bespeelbaar is, dan moet is het een target kolom/winning node
-                            if (moves.count(node[1]) == node[0]-1) and (node[1] not in self.blocked_cols_opp) :                           
+                            if (moves.count(node[1]) < node[0]) and (node[1] not in self.blocked_cols_opp) :                           
                             #if (node[1] in nodes) and (nodes[node[1]] == node[0]-1):
                                 log.info('Col:{} - Opp Blocked row:{}'.format(node[1],rij))
-                                self.blocked_cols_opp.append(node[1])
+                                self.blocked_cols_opp[node[1]] = node[0] - moves.count(node[1])
 					
         #zelf win, kan al gecontroleerd zijn
         for node in nodes_l:
@@ -496,7 +504,7 @@ class TrapBot(bots.Player):
                     return node[1]
 					
 					
-        #sorteer rijen
+        
 		 #trap is kijken voor welke node er de hoogste scores zijn
         for node in nodes_l: 
             aantal = 0
@@ -504,10 +512,12 @@ class TrapBot(bots.Player):
                 if self.scores_row[rij]>=x4.TARGET-2: 
                     aantal += 1 
             if aantal >=2:
-                log.info('Return Col({}), Trap tegenstander'.format(node[1]))
+                log.info('Return Col({}), Trap tegenstander'.format(node[1]))                
+                for rij in self.node_rows[node]: 
+                    log.debug('Rij:{} - Score:{}'.format(rij,self.opp_scores_row[rij]))
                 return node[1]#col
             
-        nodes_l = list(node for node in nodes_l if node[1] not in self.blocked_cols and node[1] not in self.blocked_cols_opp)
+        nodes_l = list(node for node in nodes_l if node[1] not in self.blocked_cols and (node[1] not in self.blocked_cols_opp or self.blocked_cols_opp[node[1]]>0))
         
         
             
@@ -518,6 +528,7 @@ class TrapBot(bots.Player):
             aantal_rijen = len(rijen)
             som_van_rijen = 0
             max_score = 0
+            
             for rij in rijen:
                 score_r = list( array[x][y] for x,y in rij).count(self.sign)
                 som_van_rijen += score_r
@@ -534,9 +545,19 @@ class TrapBot(bots.Player):
                 if score_r > max_score_opp: 
                     max_score_opp = score_r
                     
-            score_n = som_van_rijen,max_score,aantal_rijen,som_van_rijen_opp,max_score_opp,aantal_rijen_opp 
+            if max_score>max_score_opp:
+                max_score_beide = max_score 
+            else: 
+                max_score_beide = max_score_opp
+                
             
-            scores[node[1]] = tuple(score_n[m] for m in self.mode)
+            som_van_rijen_beide = som_van_rijen+som_van_rijen_opp 
+            aantal_rijen_beide = aantal_rijen + aantal_rijen_opp
+            
+                    
+            score_n = som_van_rijen,max_score,aantal_rijen,som_van_rijen_opp,max_score_opp,aantal_rijen_opp,max_score_beide,som_van_rijen_beide,aantal_rijen_beide 
+            
+            scores[node[1]] = tuple(score_n[m] for m in self.mode if m<len(score_n))
 
             
             
@@ -578,14 +599,15 @@ if __name__ == '__main__':
     #player2 = MonteCarlo()    
         
     import graphic
-    random.seed(2)
+    random.seed(1)
     players = []
-    players.append(BasePlayer())
     players.append(TrapBot())
+    players.append(GridBot())
+    
     
     import tornooi
     
-    random.shuffle(players)
+    #random.shuffle(players)
     
     #t = tornooi.Tornooi(players,30)
     #t.run()
