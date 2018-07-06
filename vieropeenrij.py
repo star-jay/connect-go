@@ -64,10 +64,6 @@ def stateToArray(state):
             c.append(state[(col)*(row)-1])  
     return result                  
             
-        
-
-#controles
-    
 def listRijenArray(array):
     rijen = []
     
@@ -249,15 +245,19 @@ class Game():
         
         #reset bord
         self.state = [NEUTRAL for x in range(MAX_RANGE)] 
-        self.array = stateToArray(self.state)
+        self.array = stateToArray(self.state)        
         
+        #geef elke speler een teken  
+        for x in range (2):
+            self.start_game_for_player(self.players[x],SIGNS[x])
         
-        #geef elke speler een teken   
-        self.players[0].startgame(SIGNS[0])
-        self.players[1].startgame(SIGNS[1])
+    def start_game_for_player(self,player,sign):
+        start_time = time.time() 
         
-        #☺self.signs[players[0]] = SIGNS[0]
-        #self.signs[players[1]] = SIGNS[1]
+        player.startgame(sign)
+        
+        end_time = time.time() - start_time 
+        self.times[player.name] += end_time
     
     
     def turn(self,player):
@@ -318,7 +318,8 @@ class Game():
                     return WIN,active_player,other_player
                 #geen win is blijven spelen en spelers omwisselen
                 active_player,other_player = other_player,active_player
-                
+            
+            log.info('draw')
             return DRAW,active_player,other_player
         
         #bepaal wie wint door spel te spelen
