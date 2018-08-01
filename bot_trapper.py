@@ -5,12 +5,11 @@ Created on Tue Jul  3 10:10:35 2018
 @author: Reinjan
 """
 
-import vieropeenrij as x4
-import bots 
+import connect_logic as x4
 import random
-
 import logging as log
-import itertools
+
+from bot_player import Player
 
 def listRijenArray(array):
     rijen = []
@@ -37,7 +36,7 @@ def listRijenArray(array):
     
     return rijen    
 
-class TrapBot(bots.Player):
+class TrapBot(Player):
     def __init__(self,name='TrapBot',mode=(7,6,4, 3, 2, 1, 0, 5) ):
         super(TrapBot,self).__init__()
         self.mode = mode
