@@ -33,7 +33,7 @@ class BasicPlayer(Player):
         self.name = 'BasicPlayer'
         
     def makeMove(self,game_state,moves):
-        #plaats in eerste kolom die nog niet vol is
+        #place coin in first column that isn't full
         cols = list(x for x in range(x4.COLS) if moves.count(x) < x4.ROWS)
         return cols.pop()
     
@@ -55,20 +55,20 @@ class ImprovedRandomPlayer(Player):
         self.name = 'ImprovedRandomPlayer'
     
     def makeMove(self,game_state,moves):
-        #basic move 
+        #columns that are not full
         cols = list(x for x in range(x4.COLS) if moves.count(x) < x4.ROWS)
         
-        #eerst controleren of je kan winnen met bepaalde move
+        #Check if you can win by playing each colmun
         for col in cols:
-            #kolom spelen
+            #simulate remove
             game_state[moves.count(col)][col] = self.sign          
-            #controelren
+            #check
             if x4.controleArray(game_state):
                 return col
-            #terugzetten oorsprongkelijke staat
+            #revert move
             game_state[moves.count(col)][col] = x4.NEUTRAL
         
-        #anders random col
+        #play random available col
         random.shuffle(cols)
         return cols.pop()
   

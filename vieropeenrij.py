@@ -24,14 +24,14 @@ WIN = 1
 LOSE = -1
 DRAW = 0
 
-def test():    
-    
-    
-    #testfunctie die alle mogelijke combinatie uitprobeert
+def test():        
+    #todo : make test unit
+    #Test function to test all combinnations 
+	
     import itertools
     #empty field
     state = [NEUTRAL for x in range(MAX_RANGE)] 
-    #
+    
     list_of_fields = list(x for x in range(MAX_RANGE))    
     combinations = list(itertools.combinations(list_of_fields,TARGET))
     
@@ -45,7 +45,7 @@ def test():
         array = stateToArray(test_state)
         if controle_all(test_state) != controleArray(array):            
             print(combi)
-            print(print_rijen(test_state)) 
+            print(print_rows(test_state)) 
             print(array)
             
 def stateToArray(state):
@@ -64,66 +64,66 @@ def stateToArray(state):
             c.append(state[(col)*(row)-1])  
     return result                  
             
-def listRijenArray(array):
-    rijen = []
+def listrowsArray(array):
+    rows = []
     
-    #rijen
+    #rows
     for row in range(ROWS):        
-        rijen.append( list ((array[row][col],row,col) for col in range(COLS)))
+        rows.append( list ((array[row][col],row,col) for col in range(COLS)))
     
-    #kolommen    
+    #columns    
     for i in range(COLS):
-        rijen.append( list ((array[y][i],y,i) for y in range(ROWS)))
+        rows.append( list ((array[y][i],y,i) for y in range(ROWS)))
     
-    #digonaal positieve offset       
+    #diagonal positive offset       
     for i in range(0-TARGET,COLS):                           
         rij = list ((array[i+x][x],i+x,x) for x in range(COLS) if i+x>=0 and i+x<ROWS )
         if len(rij)>=TARGET:
-            rijen.append(rij)
+            rows.append(rij)
     
-    #digonaal positieve offset       
+    #diagonal positive offset       
     for i in range(COLS+TARGET):   
         rij = list ((array[i-x][x],i-x,x) for x in range(COLS) if i-x>=0 and i-x<ROWS) 
         if len(rij)>=TARGET:
-            rijen.append(rij)
+            rows.append(rij)
     
-    return rijen    
+    return rows    
 
 def controleArray(array):
-    for rij in listRijenArray(array):
+    for rij in listrowsArray(array):
         if controleRijArray(rij):
             return True           
 
 
 
-def listRijen(state):
-    rijen = []
+def listrows(state):
+    rows = []
     
-    #rijen
+    #rows
     for i in range(ROWS):        
-        rijen.append( list (x for x in state[i*COLS:i*COLS+COLS]))
+        rows.append( list (x for x in state[i*COLS:i*COLS+COLS]))
     
     #kolommen    
     for i in range(COLS):
-       rijen.append( list (x for x in state[i::COLS])) 
+       rows.append( list (x for x in state[i::COLS])) 
         
     #digonaal positieve offset       
     for i in range(COLS-(TARGET-1)):             
-        rijen.append( list (state[i:COLS*(COLS-i):COLS + 1 ]))       
+        rows.append( list (state[i:COLS*(COLS-i):COLS + 1 ]))       
 
         
     for i in range(0,ROWS-TARGET):        
-        rijen.append( list (state[COLS*(i+1)::COLS + 1 ])) 
+        rows.append( list (state[COLS*(i+1)::COLS + 1 ])) 
         
     #diagonaal negatieve offset
     for i in range(COLS-TARGET + 1):             
-        rijen.append( list (state[i+TARGET-1 : (i+TARGET-1) * COLS +1  : COLS-1 ]))       
+        rows.append( list (state[i+TARGET-1 : (i+TARGET-1) * COLS +1  : COLS-1 ]))       
 
         
     for i in range(1,ROWS-TARGET+1):        
-       rijen.append( list (state[COLS*(i+1)-1::COLS - 1 ]))       
+       rows.append( list (state[COLS*(i+1)-1::COLS - 1 ]))       
     
-    return rijen
+    return rows
 
 def controleRij(rij):
     for x in range(len(rij)-(TARGET-1)):
@@ -140,11 +140,11 @@ def controleRijArray(rij):
     
             
 def controle_all(state):
-    for rij in listRijen(state):
+    for rij in listrows(state):
         if controleRij(rij):
             return True
 
-def controle_rijen(state):
+def controle_rows(state):
     for i in range(ROWS):        
         rij = list (x for x in state[i*COLS:i*COLS+COLS])
         if controleRij(rij):
@@ -336,7 +336,7 @@ class Game():
         #return resultaat    
         return winorlose,winner,loser,self.times    
     
-def print_rijen(state):
+def print_rows(state):
     rij = ''
     for i in range(ROWS):        
         rij += str(list (x for x in state[i*COLS:COLS*(i+1)]))+'\n'

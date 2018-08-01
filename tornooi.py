@@ -6,7 +6,7 @@ Created on Wed Mar 28 16:33:12 2018
 """
 import logging as log
 #logging
-log.basicConfig(level=log.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+log.basicConfig(level=log.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
 
 import random 
 import itertools
@@ -25,7 +25,7 @@ START_ELO = 1200
 C = 400
 K = 32
 
-def adjustK(games):
+def adjustK(number_of_games):
     global K
     """
     I guess a good value would be between 20 and 30, Jeff Sonas for example suggest 24 as the optimum value, 
@@ -37,11 +37,11 @@ def adjustK(games):
     #> 2000 	>300 		12
     #> 2200 	>300 		10 
     
-    if games>18:
+    if number_of_games>18:
         K = 40
-    if games>35:
+    if number_of_games>35:
         K = 20
-    if games>70:
+    if number_of_games>70:
         K = 10
         
 def f(args):
@@ -53,15 +53,11 @@ def f(args):
     return cols[:amount]
 
 def playgame(args): 
-    #print( len(args))
-    #game,elo = args
     player1,player2,elo = args
     #play game
     game = x4.Game((player1,player2,))
-    
-    #winorlose,winner,loser = 
-    #add scores
-    #self.addToScores(winorlose,winner,loser,elo)    
+
+    #return scores  
     return game.play()+(player1,player2,elo,)   
     
 
@@ -81,13 +77,13 @@ def calculateElo(players,scores):
     r2draw = round( K*(0.5-E2))
     
     if r1win+r2lose != 0 :
-        log.warning('elo fout'+str(r1win,r2lose ))
+        log.warning('elo error'+str(r1win,r2lose ))
         
     if r2win+r1lose != 0 :
-        log.warning('elo fout'+str(r2win,r1lose ))
+        log.warning('elo error'+str(r2win,r1lose ))
         
     if r1draw+r2draw != 0 :
-        log.warning('elo fout'+str(r1draw,r2draw))
+        log.warning('elo error'+str(r1draw,r2draw))
     
     elo = {
             players[0] : {x4.WIN : r1win,x4.LOSE : r1lose,x4.DRAW : r1draw},
@@ -98,8 +94,7 @@ def calculateElo(players,scores):
   
 
                 
-class Tornooi:
-    
+class Tournament:
     
     def __init__(self,players,aantal_rondes):
         self.scores = {}
@@ -111,20 +106,16 @@ class Tornooi:
         self.all_combinations = list(itertools.permutations(self.players,2))
         
         #configure plot
-        fig_size = plt.rcParams["figure.figsize"]         
-        #print ("Current size:", fig_size)         
+        fig_size = plt.rcParams["figure.figsize"]  
         # Set figure width to 12 and height to 9
         fig_size[0] = 12
         fig_size[1] = 9
-        plt.rcParams["figure.figsize"] = fig_size
+        plt.rcParams["figure.figsize"] = fig_size  
         
-            
-        
-    def addToScores(self,scores,winorlose,winner,loser,elo):
-        #Elo
+    def addToScores(self,scores,winorlose,winner,loser,elo):        
         try:
             if winorlose==x4.DRAW :
-                log.debug('gelijkspel')
+                log.debug('Draw')
                 scores[winner.name] += elo[winner][x4.DRAW]            
                 scores[loser.name]  += elo[loser][x4.DRAW]
             else:         
@@ -155,7 +146,7 @@ class Tornooi:
             
         plot = plt.plot(self.chart)
         plt.ylabel('ELO')
-        plt.xlabel('Rondes')
+        plt.xlabel('Rounds')
         plt.legend(plot, legends)
         plt.show()  
         
@@ -195,7 +186,7 @@ class Tornooi:
                 text = ax.text(j, i, matchups[i, j],
                                ha="center", va="center", color="w")
         
-        ax.set_title("Matchups (linker speler begint)",y=1.2)
+        ax.set_title("Matchups (left player starts)",y=1.2)
         fig.tight_layout()
         plt.show()
         
@@ -210,31 +201,30 @@ class Tornooi:
 			        
         #p = Pool(4)       
         for x in range(self.aantal_rondes):
-				#elo bepalen adhv van speler niet, aantal rondes
+			#Adjust Elo to amount of rounds
             adjustK(x)
-            #shuffle games, startpositie kan bepalend zijn voor elo
-            random.shuffle(self.all_combinations)  
-				#te winnen ELO toevoegen aan game	
+             
+			#Add Elo to combination of games 	
             games = [ game+(calculateElo(game,self.scores),) for game in self.all_combinations ] 
 				
-			  #games uitvoeren in thread pool
+			#Todo : run games in thread pool
             #results = run_pool(p,games)
-            #games synchroon uitvoeren
+            #run games in sync mode 
             results = run_sync(games)
 				
             for result in results:  
-					#result uitpakken
+				#exract result
                 winorlose,winner,loser,times,player1,player2,elo = result
-                #elo optellen
+                #add elo to score
                 self.addToScores(self.scores,winorlose,winner,loser,elo) 
-                #matchups bewerken
-                self.addToMatchup(player1,player2,winner,winorlose)
+                #add score to matchup
+                self.addToMatchup(player1,player2,winner,winorlose)                
                 
-                
+				#add times to total time of players
                 for player in times:
                     self.times[player] += times[player]
     
-				#huidige elo ranking opslaan
+			#save a snapshot of the scores after each round
             self.saveScores()
         return len(games)*self.aantal_rondes
 
@@ -254,31 +244,26 @@ class Tornooi:
         #startscores    
         self.saveScores()
         
-        #speel tornooi
+        #run tournament
         games_played = self.playTheGames()
         
-        #resultaten
-        print('Tornooi finnished') 
+        #results
+        print('Tournament finnished') 
         print('Games played : ' + str(games_played))
         print()
         
         print('Scores : ')        
-        for speler in self.scores:
-            print(speler+' : '+str(self.scores[speler])) 
+        for player in self.scores:
+            print(player+' : '+str(self.scores[player])) 
         print('')
         print('Times : ')        
-        for speler in self.times:
-            print(speler+' : '+str(round(self.times[speler],2)))
+        for player in self.times:
+            print(player+' : '+str(round(self.times[player],2)))
 
         self.plot()
         self.heatmap()
-       
-                         
 
 def main():   
-    
-    
-
     import timing
     aantal_rondes = 100
     players = []
@@ -294,19 +279,22 @@ def main():
     import ReinjanBots
     import EmielsBots    
 
-    ##VOEG HIER U BOT TOE##
-    players.append(EmielsBots.EmielsPlayer())       
+    ##ADD YOUR BOT HERE##
+    #players.append(ReinjanBots.TrapBot(name='1',mode=(6,4,7, 3, 2, 1, 0, 5))) 
+    #players.append(ReinjanBots.TrapBot(name='2',mode=(7,6,4, 3, 2, 1, 0, 5))) 
+    #players.append(ReinjanBots.TrapBot(name='3',mode=(4,6,7, 3, 2, 1, 0, 5))) 
+    players.append(ReinjanBots.TrapBot()) 
     players.append(ReinjanBots.Calculot()) 
     players.append(ReinjanBots.GridBot()) 
     players.append(ReinjanBots.SpeedyRandomPlayer()) 
     
-    #start tornooi
-    tornooi = Tornooi(players,aantal_rondes)
-    tornooi.run()       
+    #start tournament
+    tournament = Tournament(players,aantal_rondes)
+    tournament.run()       
     timing.endlog()
     
-    #run na het tornooi een random game tussen twee deelnemers
-    #game = graphic.GraphicGame(tornooi.all_combinations.pop())
+    #After the tournament run a game between two players
+    #game = graphic.GraphicGame(tournament.all_combinations.pop())
     #game.play()
     
 if __name__ == '__main__':
