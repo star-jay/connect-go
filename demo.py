@@ -9,6 +9,7 @@ from game import GraphicGame
 from bot_player import Player
 import bot_simplebots as bots   
 from bot_trapper import TrapBot 
+from ReinjanBots import GridBot
 
 def main():   
 
@@ -21,7 +22,8 @@ def main():
     players.append(bots.MirrorBot())    
     players.append(bots.CopyBot())
     players.append(bots.RandomPlayer()) 
-    players.append(TrapBot())     
+    players.append(TrapBot()) 
+    players.append(GridBot())     
     
     #start tournament
     try:
@@ -32,9 +34,12 @@ def main():
                     
     timing.endlog()
     
+def DemoGame():
     #After the tournament run a game between two players
-    #game = GraphicGame(tournament.all_combinations.pop())
-    #game.play()
+    game = GraphicGame((GridBot(),Human('otto')))
+    game.play()
+
     
 if __name__ == '__main__':
-    main()
+    #main()
+    DemoGame()

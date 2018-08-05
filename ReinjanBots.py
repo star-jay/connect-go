@@ -5,8 +5,8 @@ Created on Thu May  3 14:29:18 2018
 @author: Reinjan
 """
 
-import vieropeenrij as x4
-import bots 
+import connect_logic as x4
+import bot_player as bots 
 import random
 
 import logging as log
@@ -25,7 +25,7 @@ def controleArray(array,sign,target,wildcard,wildcardcount):
                 return rij[nodes.index(wildcard)+x]
         
     
-    for rij in x4.listRijenArray(array):
+    for rij in x4.listrowsArray(array):
         #print(rij)
         node = controleRij(rij,sign,target,wildcard,wildcardcount)
             #return de col
@@ -221,7 +221,7 @@ als total score of max score hoger is dan andere kolom zoeken
 
 """
 
-def listRijenArray(array):
+def listrowsArray(array):
     rijen = []
     
     #rijen
@@ -261,7 +261,7 @@ class GridBot(BasePlayer):
         state = list(x4.NEUTRAL for x in range(x4.MAX_RANGE))
         array = x4.stateToArray(state)
         
-        listr = listRijenArray(array)
+        listr = listrowsArray(array)
         self.list_r = []
         for rij in listr:            
             for x in range (len(rij)-(x4.TARGET-1)):
@@ -368,7 +368,7 @@ class TrapBot(bots.Player):
         state = list(x4.NEUTRAL for x in range(x4.MAX_RANGE))
         array = x4.stateToArray(state)
         
-        listr = listRijenArray(array)
+        listr = listrowsArray(array)
         self.list_r = []
         for rij in listr:            
             for x in range (len(rij)-(x4.TARGET-1)):

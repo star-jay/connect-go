@@ -8,24 +8,7 @@ Created on Tue Apr 24 15:28:18 2018
 import vieropeenrij as x4
 import random
 
-          
-class Player():   
-    
-    def __init__(self):
-        self.name = 'unknown'
-        
-            
-    def makeMove(self,game_state,moves):
-        #basic move         
-        return 0
-    
-    def startgame(self,sign):
-        #basic move         
-        self.sign = sign
-        
-    def endgame(self,winorlose,game_state,moves):
-        
-        return
+from bot_player import Player  
     
 class BasicPlayer(Player):   
     
@@ -44,10 +27,7 @@ class RandomPlayer(Player):
     
     def makeMove(self,game_state,moves):
         #basic move 
-        cols = list(x for x in range(x4.COLS) if moves.count(x) < x4.ROWS)
-        
-        random.shuffle(cols)
-        return cols.pop()
+        return self.random_move(moves)
             
 class ImprovedRandomPlayer(Player):
     

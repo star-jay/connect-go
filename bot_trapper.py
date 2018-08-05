@@ -9,6 +9,9 @@ import connect_logic as x4
 import random
 import logging as log
 
+#logging
+log.basicConfig(level=log.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 from bot_player import Player
 
 def listRijenArray(array):
@@ -88,8 +91,6 @@ class TrapBot(Player):
             self.scores_row[rij] += 1
                 
 			  #kijken of kan winnen                    
-            log.debug('Rij:{} - Score : {}'.format(rij,self.scores_row[rij])   )
-                
             if self.scores_row[rij] >= x4.TARGET-1:		
                 #controle of geen vert rij is
                 if rij[0][1] != rij[1][1]:				
@@ -105,7 +106,8 @@ class TrapBot(Player):
          
     def makeMove(self,game_state,moves): 
         #geen openening move
-                
+        log.info('calculating')
+                                    
         #kolommen waar er nog geen maximum aantal zetten in gespeeld zijn
         cols = [x for x in range(x4.COLS) if moves.count(x) < x4.ROWS ]     
         
@@ -197,8 +199,12 @@ class TrapBot(Player):
             
         nodes_l = list(node for node in nodes_l if node[1] not in self.blocked_cols and (node[1] not in self.blocked_cols_opp or self.blocked_cols_opp[node[1]]>0))       
         
-            
-        #score berekenen opponent        
+         
+        #if only move is win or lose then play it
+        winning = False
+        winning_opp = False
+        
+        #score berekenen       
         scores = {}
         for node in nodes_l:       
             rijen = [rij for rij in self.node_rows[node]] 
@@ -229,14 +235,31 @@ class TrapBot(Player):
                 
             
             som_van_rijen_beide = som_van_rijen+som_van_rijen_opp 
-            aantal_rijen_beide = aantal_rijen + aantal_rijen_opp
-            
+            aantal_rijen_beide = aantal_rijen + aantal_rijen_opp            
                     
-            score_n = som_van_rijen,max_score,aantal_rijen,som_van_rijen_opp,max_score_opp,aantal_rijen_opp,max_score_beide,som_van_rijen_beide,aantal_rijen_beide 
+            score_n = (som_van_rijen,
+                       max_score,
+                       aantal_rijen,
+                       som_van_rijen_opp,
+                       max_score_opp,
+                       aantal_rijen_opp,
+                       max_score_beide,
+                       som_van_rijen_beide,
+                       aantal_rijen_beide) 
             
             scores[node[1]] = tuple(score_n[m] for m in self.mode if m<len(score_n))
-
             
+            if (winning==False) and max_score == x4.TARGET-1:
+                winning = node
+            if (winning_opp==False) and max_score_opp == x4.TARGET-1:
+                winning_opp = node    
+            
+        if (winning!=False):
+            log.info('Return Col({}) winning move'.format(winning[1]))
+            return winning[1]
+        if (winning_opp!=False):
+            log.info('Return Col({}) blocking move'.format(winning_opp[1]))
+            return winning_opp[1]   
             
         if len(scores)>=1:
             result = max(scores, key=scores.get)    

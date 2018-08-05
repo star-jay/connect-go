@@ -23,93 +23,18 @@ class Player():
         #basic move         
         self.sign = sign
         
-    def endgame(self,winorlose,game_state,moves):
-        
+    def endgame(self,winorlose,game_state,moves):        
         return
     
-class BasicPlayer(Player):   
+    def playable_cols(self,moves):
+        return [col for col in range(x4.COLS) if moves.count(col) < x4.ROWS]
     
-    def __init__(self):
-        self.name = 'BasicPlayer'
-        
-    def makeMove(self,game_state,moves):
-        #place coin in first column that isn't full
-        cols = list(x for x in range(x4.COLS) if moves.count(x) < x4.ROWS)
-        return cols.pop()
+    def playable_nodes(self,moves):
+        return {x:moves.count(x) for x in range(x4.COLS) if moves.count(x) < x4.ROWS }
     
-class RandomPlayer(Player):
-    
-    def __init__(self):
-        self.name ='RandomPlayer'
-    
-    def makeMove(self,game_state,moves):
-        #basic move 
-        cols = list(x for x in range(x4.COLS) if moves.count(x) < x4.ROWS)
-        
+    def random_move(self,moves):
+        cols = self.playable_cols(moves)        
         random.shuffle(cols)
         return cols.pop()
-            
-class ImprovedRandomPlayer(Player):
-    
-    def __init__(self):
-        self.name = 'ImprovedRandomPlayer'
-    
-    def makeMove(self,game_state,moves):
-        #columns that are not full
-        cols = list(x for x in range(x4.COLS) if moves.count(x) < x4.ROWS)
-        
-        #Check if you can win by playing each colmun
-        for col in cols:
-            #simulate remove
-            game_state[moves.count(col)][col] = self.sign          
-            #check
-            if x4.controleArray(game_state):
-                return col
-            #revert move
-            game_state[moves.count(col)][col] = x4.NEUTRAL
-        
-        #play random available col
-        random.shuffle(cols)
-        return cols.pop()
-  
-            
-class CopyBot(Player):
-    
-    def __init__(self):
-        self.name = 'CopyBot'
-    
-    def makeMove(self,game_state,moves):
-        #basic move 
-        
-        cols = list(x for x in range(x4.COLS) if moves.count(x) < x4.ROWS)
-        if len(moves)==0: 
-           return cols.pop()
-       
-        move = moves.pop()        
-        if moves.count(move) == x4.ROWS-1:
-           return cols.pop()
-        else:
-           return move
-        
-class MirrorBot(Player):
-    
-    def __init__(self):
-        self.name = 'MirrorBot'
-    
-    def makeMove(self,game_state,moves):
-        cols = list(x for x in range(x4.COLS) if moves.count(x) < x4.ROWS)
-        
-        if len(moves)==0: 
-           return cols.pop()
-        
-        move = moves.pop()
-        if not move in cols:
-            return cols.pop()
-        
-        mirrormove = len(cols) - cols.index(move) - 1        
-        if len(cols) > mirrormove:    
-            return cols[mirrormove]
-        else:
-            cols.pop()
-        
+
         
