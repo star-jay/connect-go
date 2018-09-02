@@ -22,19 +22,19 @@ class EmielsPlayer(bots.Player):
         return kolom + (rij -1)* x4.COLS
                  
     def legalMove(self,  kolom, rij):
-        if kolom > x4.COLS -1 or rij > x4.ROWS -1 or kolom < 0 or rij < 1:
+        if kolom > x4.COLS -1 or rij > x4.ROWS -1 or kolom < 0 or rij < 0:
             return False
         else:
             return True
     
     def freeSlot(self, game_state, kolom, rij):
+        #return True
         if(not self.legalMove(kolom, rij)):
             return False
         if game_state[rij][ kolom] != x4.NEUTRAL:
             return False
         if game_state[rij][kolom] == x4.NEUTRAL:
-            if game_state[rij -1 ][ kolom] != x4.NEUTRAL:
-                return True
+            return True
             
         return False
     
@@ -47,77 +47,16 @@ class EmielsPlayer(bots.Player):
         for x in range (0,7):
             rij = moves.count(x)
             if self.legalMove( x, rij +1):
-                col = self.verticalWinner(game_state, x, rij +1)
+                col = self.checkVertical(game_state, x, rij +1, self.sign)
                 if  col != None:
                     return col
-                col = self.horizontalWinner(game_state, x, rij +1)
+                col = self.checkHorizontaal(game_state, x, rij +1, self.sign)
                 if col != None:
                     return col
-                col = self.schuineWinner(game_state, x, rij +1)
+                col = self.checkSchuin(game_state, x, rij +1, self.sign)
                 if col != None:
                     return col
             
-        return None
-            
-    def verticalWinner(self, game_state, kolom, rij):
-        if rij -3 >= 0:
-            if game_state[rij -1 ][kolom] == self.sign and game_state[rij -2][ kolom] == self.sign and game_state[rij -3][kolom] == self.sign:
-                if self.legalMove( kolom, rij):
-                    return kolom
-        return None
-    
-    def horizontalWinner(self, game_state, kolom, rij):
-        if kolom -3 > -1:
-            if game_state[rij][kolom -1] == self.sign and game_state[rij][kolom -2] == self.sign and game_state[rij][kolom -3] == self.sign:
-                return kolom
-        
-        if kolom -2 > -1 and kolom +1 < x4.COLS:
-            if game_state[rij][kolom -1] == self.sign and game_state[rij][ kolom -2] == self.sign and game_state[rij][ kolom +1] == self.sign:
-                return kolom
-            
-        if kolom -1 > -1 and kolom +2 < x4.COLS:
-            if game_state[rij][kolom -1] == self.sign and game_state[rij][ kolom +1] == self.sign and game_state[rij][ kolom +2] == self.sign:
-                return kolom
-            
-        if  kolom +3 < x4.COLS:
-            if game_state[rij][ kolom +3] == self.sign and game_state[rij][kolom +1] == self.sign and game_state[rij][ kolom +2] == self.sign:
-                return kolom
-            
-        return None
-    
-    def schuineWinner(self, game_state,kolom, rij):
-        if rij -3 > -1 and kolom -3 > -1:
-             if game_state[rij -1][ kolom -1] == self.sign and game_state[rij -2][ kolom -2] == self.sign and game_state[rij -3][ kolom -3] == self.sign:
-                 return kolom
-        
-        if rij -2 > -1 and kolom -2 > -1 and rij +1 < x4.ROWS +1 and kolom +1 < x4.COLS:
-             if game_state[rij -1][kolom -1] == self.sign and game_state[rij -2][ kolom -2] == self.sign and game_state[rij +1][ kolom +1] == self.sign:
-                 return kolom
-        
-        if rij -1 > -1 and kolom -1 > -1 and rij +2 < x4.ROWS +1 and kolom +2 < x4.COLS:
-             if game_state[rij -1][ kolom -1] == self.sign and game_state[rij +1][ kolom +1] == self.sign and game_state[rij +2][ kolom +2] == self.sign:
-                 return kolom
-             
-        if rij +3 < x4.ROWS and kolom +3 < x4.COLS:
-             if game_state[rij +1][ kolom +1] == self.sign and game_state[rij +2][ kolom +2] == self.sign and game_state[rij +3][ kolom +3] == self.sign:
-                 return kolom
-        
-        if rij -3 > -1 and kolom +3 < x4.COLS :
-             if game_state[rij -3][ kolom +3] == self.sign and game_state[rij -2][ kolom +2] == self.sign and game_state[rij -1][ kolom +1] == self.sign:
-                 return kolom
-        
-        if rij -2 > -1 and rij +1 < x4.ROWS and kolom-1 > -1 and kolom +2 < x4.COLS :
-             if game_state[rij +1][ kolom -1] == self.sign and game_state[rij -2][ kolom +2] == self.sign and game_state[rij -1][ kolom +1] == self.sign:
-                 return kolom
-        
-        if rij -1 > -1 and rij +2 < x4.ROWS and kolom-2 > -1 and kolom +1 < x4.COLS :
-             if game_state[rij +1][ kolom -1] == self.sign and game_state[rij +2][ kolom -2] == self.sign and game_state[rij -1][ kolom +1] == self.sign:
-                 return kolom
-        
-        if rij +3 < x4.ROWS and kolom-3 > -1 :
-             if game_state[rij +1][kolom -1] == self.sign and game_state[rij +2][ kolom -2] == self.sign and game_state[rij +3][ kolom -3] == self.sign:
-                 return kolom
-             
         return None
     
     def normalMove(self, game_state, moves):
@@ -125,11 +64,11 @@ class EmielsPlayer(bots.Player):
         maxScore = 0
         col = None
         for kolom in range (0,7):
-            rij = moves.count(kolom) +1
-            if rij < x4.ROWS +1:
-                score += self.zijdelingseScore(game_state, kolom, rij)
-                score += self.verticaleScore(game_state, kolom, rij)
-                score += self.schuineScore(game_state, kolom, rij)
+            rij = moves.count(kolom) 
+            if rij < x4.ROWS :
+                score += self.zijdelingseScore(game_state, kolom, rij, self.sign)
+                score += self.verticaleScore(game_state, kolom, rij, self.sign)
+                score += self.schuineScore(game_state, kolom, rij, self.sign)
             
             
             if score > maxScore:
@@ -139,62 +78,62 @@ class EmielsPlayer(bots.Player):
             
         return col
             
-    def schuineScore(self, game_state, kolom, rij):
+    def schuineScore(self, game_state, kolom, rij, sign):
         score = 0
         
-        if rij -1 > 0 and kolom -1 > -1 :
-            if game_state[rij -1][kolom -1] == self.sign:
+        if rij -1 > -1 and kolom -1 > -1 :
+            if game_state[rij -1][kolom -1] == sign:
                 score += 1
                 if rij -2 > 0 and kolom -2 > -1 :
-                    if game_state[rij -2][kolom -2] == self.sign:
+                    if game_state[rij -2][kolom -2] == sign:
                         score += 2
         
-        if rij +1 <x4.ROWS +1 and kolom -1 > -1 :
-            if game_state[rij +1][ kolom -1] == self.sign:
+        if rij +1 <x4.ROWS  and kolom -1 > -1 :
+            if game_state[rij +1][ kolom -1] == sign:
                 score += 1
-                if rij +2 <x4.ROWS +1 and kolom -2 > -1 :
-                    if game_state[rij +2][ kolom -2] == self.sign:
+                if rij +2 <x4.ROWS  and kolom -2 > -1 :
+                    if game_state[rij +2][ kolom -2] == sign:
                         score += 2
         
-        if rij +1 < x4.ROWS +1 and kolom +1 <x4.COLS :
-            if game_state[rij +1][ kolom +1] == self.sign:
+        if rij +1 < x4.ROWS  and kolom +1 <x4.COLS :
+            if game_state[rij +1][ kolom +1] == sign:
                 score += 1
-                if rij +2 <x4.ROWS +1 and kolom +2 <x4.COLS :
-                    if game_state[rij +2][ kolom +2] == self.sign:
+                if rij +2 <x4.ROWS  and kolom +2 <x4.COLS :
+                    if game_state[rij +2][ kolom +2] == sign:
                         score += 2
         
-        if rij -1 >0 and kolom +1 <x4.COLS :
-            if game_state[rij -1][kolom +1] == self.sign:
+        if rij -1 > -1 and kolom +1 <x4.COLS :
+            if game_state[rij -1][kolom +1] == sign:
                 score += 1
-                if rij -2 > 0 and kolom +2 <x4.COLS :
-                    if game_state[rij -2][ kolom +2] == self.sign:
+                if rij -2 > -1 and kolom +2 <x4.COLS :
+                    if game_state[rij -2][ kolom +2] == sign:
                         score += 2
         return score
     
-    def verticaleScore(self, game_state, kolom, rij):
+    def verticaleScore(self, game_state, kolom, rij, sign):
         score = 0
         if rij -1 > 0:
-            if game_state[rij -1][kolom] == self.sign :
+            if game_state[rij -1][kolom] == sign :
                 score += 1
             if rij -2 > 0:
-                if game_state[rij -2][ kolom] == self.sign :
+                if game_state[rij -2][ kolom] == sign :
                     score += 2    
         return score
         
-    def zijdelingseScore(self, game_state, kolom, rij):
+    def zijdelingseScore(self, game_state, kolom, rij, sign):
         score = 0
         if kolom +1 < x4.COLS:
-            if game_state[rij][ kolom +1] == self.sign :
+            if game_state[rij][ kolom +1] == sign :
                 score += 1
                 if kolom +2 < x4.COLS:
-                    if game_state[rij][ kolom +2] == self.sign :
+                    if game_state[rij][ kolom +2] == sign :
                         score += 2
         
         if kolom -1 > 0:
-            if game_state[rij][ kolom -1] == self.sign :
+            if game_state[rij][ kolom -1] == sign :
                 score += 1
                 if kolom -2 > 0:
-                    if game_state[rij][ kolom -2] == self.sign :
+                    if game_state[rij][ kolom -2] == sign :
                         score += 2
         
         return score           
@@ -202,84 +141,82 @@ class EmielsPlayer(bots.Player):
     def blockNodig(self, game_state, moves):   
         for kolom in range (0, x4.COLS):
             rij = moves.count(kolom)
-            if self.freeSlot(game_state, kolom, rij +1):
+            if self.freeSlot(game_state, kolom, rij ):
                 
-                col = self.blockVertical(game_state, kolom, rij+1)
+                col = self.checkVertical(game_state, kolom, rij, x4.revertsign(self.sign))
                 if col != None:
                     return col
                 
-                col = self.blockZijdelings(game_state, kolom, rij+1)
+                col = self.checkHorizontaal(game_state, kolom, rij, x4.revertsign(self.sign))
                 if col != None:
                     return col
                 
-                col = self.blockSchuin(game_state, kolom, rij +1)
+                col = self.checkSchuin(game_state, kolom, rij, x4.revertsign(self.sign) )
                 if col != None:
                     return col
             
         return None
     
-    def blockVertical(self, game_state, kolom, rij):
-        if rij - 3 > 0:
-            if game_state[rij -3][ kolom] == x4.revertsign(self.sign) and game_state[rij -2][ kolom ] == x4.revertsign(self.sign) and game_state[rij -1][ kolom ] == x4.revertsign(self.sign) :
+    def checkVertical(self, game_state, kolom, rij, sign):
+        if rij -3 >= 0:
+            if game_state[rij -1 ][kolom] == sign and game_state[rij -2][ kolom] == sign and game_state[rij -3][kolom] == sign:
                 if self.freeSlot(game_state, kolom, rij):
                     return kolom
-        else:
-            return None
-                
-    def blockZijdelings(self, game_state, kolom, rij):
+        return None
+    
+    def checkHorizontaal(self, game_state, kolom, rij, sign):
         if kolom -3 > -1:
-            if game_state[rij][ kolom -1] == x4.revertsign(self.sign) and game_state[rij][ kolom -2] == x4.revertsign(self.sign) and game_state[rij][ kolom -3] == x4.revertsign(self.sign):
+            if game_state[rij][kolom -1] == sign and game_state[rij][kolom -2] == sign and game_state[rij][kolom -3] == sign:
                 return kolom
         
         if kolom -2 > -1 and kolom +1 < x4.COLS:
-            if game_state[rij][ kolom -1] == x4.revertsign(self.sign) and game_state[rij][ kolom -2] == x4.revertsign(self.sign) and game_state[rij][ kolom +1] == x4.revertsign(self.sign):
+            if game_state[rij][kolom -1] == sign and game_state[rij][ kolom -2] == sign and game_state[rij][ kolom +1] == sign:
                 return kolom
             
         if kolom -1 > -1 and kolom +2 < x4.COLS:
-            if game_state[rij][ kolom -1] == x4.revertsign(self.sign) and game_state[rij][kolom +1] == x4.revertsign(self.sign) and game_state[rij][ kolom +2] == x4.revertsign(self.sign):
+            if game_state[rij][kolom -1] == sign and game_state[rij][ kolom +1] == sign and game_state[rij][ kolom +2] == sign:
                 return kolom
             
-        if kolom +3 < x4.COLS:
-            if game_state[rij][ kolom +1] == x4.revertsign(self.sign) and game_state[rij][ kolom +2] == x4.revertsign(self.sign) and game_state[rij][ kolom +3] == x4.revertsign(self.sign):
+        if  kolom +3 < x4.COLS:
+            if game_state[rij][ kolom +3] == sign and game_state[rij][kolom +1] == sign and game_state[rij][ kolom +2] == sign:
                 return kolom
             
         return None
-                
-    def blockSchuin(self, game_state, kolom, rij):
+    
+    def checkSchuin(self, game_state, kolom, rij, sign):
         if rij -3 > -1 and kolom -3 > -1:
-             if game_state[rij -1][ kolom -1] == x4.revertsign(self.sign) and game_state[rij -2][ kolom -2] == x4.revertsign(self.sign) and game_state[rij -3][ kolom -3] == x4.revertsign(self.sign):
+             if game_state[rij -1][ kolom -1] == sign and game_state[rij -2][ kolom -2] == sign and game_state[rij -3][ kolom -3] == sign:
                  return kolom
         
         if rij -2 > -1 and kolom -2 > -1 and rij +1 < x4.ROWS +1 and kolom +1 < x4.COLS:
-             if game_state[rij -1][ kolom -1] == x4.revertsign(self.sign) and game_state[rij -2][ kolom -2] == x4.revertsign(self.sign) and game_state[rij +1][ kolom +1] == x4.revertsign(self.sign):
+             if game_state[rij -1][kolom -1] == sign and game_state[rij -2][ kolom -2] == sign and game_state[rij +1][ kolom +1] == sign:
                  return kolom
         
         if rij -1 > -1 and kolom -1 > -1 and rij +2 < x4.ROWS +1 and kolom +2 < x4.COLS:
-             if game_state[rij -1][ kolom -1] == x4.revertsign(self.sign) and game_state[rij +1][kolom +1] == x4.revertsign(self.sign) and game_state[rij +2][ kolom +2] == x4.revertsign(self.sign):
+             if game_state[rij -1][ kolom -1] == sign and game_state[rij +1][ kolom +1] == sign and game_state[rij +2][ kolom +2] == sign:
                  return kolom
              
         if rij +3 < x4.ROWS and kolom +3 < x4.COLS:
-             if game_state[rij +1][ kolom +1] == x4.revertsign(self.sign) and game_state[rij +2][ kolom +2] == x4.revertsign(self.sign) and game_state[rij +3][ kolom +3] == x4.revertsign(self.sign):
+             if game_state[rij +1][ kolom +1] == sign and game_state[rij +2][ kolom +2] == sign and game_state[rij +3][ kolom +3] == sign:
                  return kolom
         
         if rij -3 > -1 and kolom +3 < x4.COLS :
-             if game_state[rij -3][ kolom +3] == x4.revertsign(self.sign) and game_state[rij -2][ kolom +2] == x4.revertsign(self.sign) and game_state[rij -1][ kolom +1] == x4.revertsign(self.sign):
+             if game_state[rij -3][ kolom +3] == sign and game_state[rij -2][ kolom +2] == sign and game_state[rij -1][ kolom +1] == sign:
                  return kolom
         
         if rij -2 > -1 and rij +1 < x4.ROWS and kolom-1 > -1 and kolom +2 < x4.COLS :
-             if game_state[rij +1][ kolom -1] == x4.revertsign(self.sign) and game_state[rij -2][ kolom +2] == x4.revertsign(self.sign) and game_state[rij -1][ kolom +1] == x4.revertsign(self.sign):
+             if game_state[rij +1][ kolom -1] == sign and game_state[rij -2][ kolom +2] == sign and game_state[rij -1][ kolom +1] == sign:
                  return kolom
         
         if rij -1 > -1 and rij +2 < x4.ROWS and kolom-2 > -1 and kolom +1 < x4.COLS :
-             if game_state[rij +1][ kolom -1] == x4.revertsign(self.sign) and game_state[rij +2][kolom -2] == x4.revertsign(self.sign) and game_state[rij -1][ kolom +1] == x4.revertsign(self.sign):
+             if game_state[rij +1][ kolom -1] == sign and game_state[rij +2][ kolom -2] == sign and game_state[rij -1][ kolom +1] == sign:
                  return kolom
         
         if rij +3 < x4.ROWS and kolom-3 > -1 :
-             if game_state[rij +1][ kolom -1] == x4.revertsign(self.sign) and game_state[rij +2][ kolom -2] == x4.revertsign(self.sign) and game_state[rij +3][ kolom -3] == x4.revertsign(self.sign):
+             if game_state[rij +1][kolom -1] == sign and game_state[rij +2][ kolom -2] == sign and game_state[rij +3][ kolom -3] == sign:
                  return kolom
              
         return None
-
                 
                 
     def random_move(self,game_state):
@@ -305,9 +242,9 @@ class EmielsPlayer(bots.Player):
             return col
         
         #blocken
-        #col = self.blockNodig(game_state, moves)
-        #if col != None:
-          # return col
+        col = self.blockNodig(game_state, moves)
+        if col != None:
+           return col
             
         
         #Eigen strat
@@ -317,7 +254,6 @@ class EmielsPlayer(bots.Player):
         else:
             aantal = moves.count(laatsteKolom)
         col = self.normalMove(game_state, moves)
-      #  col = self.checkRondom(game_state, laatsteKolom, aantal)
         if col != None:
             return col
 
@@ -325,7 +261,9 @@ class EmielsPlayer(bots.Player):
         return self.random_move(game_state)
     
 if __name__ == '__main__':
-    game = x4.Game((EmielsPlayer(), EmielsPlayer()))
+    import ReinjanBots
+    game = x4.Game(( EmielsPlayer(), ReinjanBots.BasePlayer()))
+    #game = x4.Game((EmielsPlayer(), EmielsPlayer()))
     game.play()
     for row in game.array:
         print(row)
