@@ -457,7 +457,7 @@ class Simulator(ImprovedPlayer):
         
         #alle mogelijke zetten
         for col in cols:            
-            temp_state = game_state.copy()
+            temp_state = game_state.copy()  
             x4.addCoinTostate(temp_state,col,self.sign)
             states[col] = temp_state
             temp_state = game_state.copy()

@@ -69,7 +69,13 @@ class EmielsPlayer(bots.Player):
                 score += self.zijdelingseScore(game_state, kolom, rij, self.sign)
                 score += self.verticaleScore(game_state, kolom, rij, self.sign)
                 score += self.schuineScore(game_state, kolom, rij, self.sign)
-            
+            for opponentKolom in range(0,7):
+                rij = moves.count(opponentKolom)
+                if(opponentKolom == kolom):
+                    rij += 1
+                score -= self.zijdelingseScore(game_state, kolom, rij, x4.revertsign(self.sign))
+                score -= self.verticaleScore(game_state, kolom, rij, x4.revertsign(self.sign))
+                score -= self.schuineScore(game_state, kolom, rij, x4.revertsign(self.sign))
             
             if score > maxScore:
                 col = kolom
