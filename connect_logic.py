@@ -5,10 +5,6 @@ Created on Tue Apr 24 15:22:19 2018
 @author: Reinjan
 """
 
-import logging as log
-import time
-import traceback
-
 #DIMENSIONS
 ROWS = 6
 COLS = 7
@@ -231,110 +227,7 @@ def addCoinToArray(array,col,sign):
     #kolom vol = illegal move
     return False
         
-class Game():
-   
-    def __init__(self,players):
-        self.state = []
-        self.moves = []            
-        
-        self.players = players
-        
-        self.times = {}
-        for player in players:
-            self.times[player.name] = 0
-        
-        #reset bord
-        self.state = [NEUTRAL for x in range(MAX_RANGE)] 
-        self.array = stateToArray(self.state)        
-        
-        #geef elke speler een teken  
-        for x in range (2):
-            self.start_game_for_player(self.players[x],SIGNS[x])
-        
-    def start_game_for_player(self,player,sign):
-        start_time = time.time() 
-        
-        player.startgame(sign)
-        
-        end_time = time.time() - start_time 
-        self.times[player.name] += end_time
-    
-    
-    def turn(self,player):
-        start_time = time.time()  
-        #speler maakt move
-        
-        array_copy = []
-        for rij in self.array:
-            array_copy.append(rij.copy())
-        try:
-            col = player.makeMove(array_copy,self.moves.copy()) 
-        except Exception as e:
-            log.error('Fout {} door {}({}) in game tegen {} :'.format(e,player.name,player.sign, str(opponent.name for opponent in self.players if opponent != player)))
-            log.error(traceback.format_exc())
-            for rij in self.array:
-                log.info(rij)
-            end_time = time.time() - start_time 
-            self.times[player.name] += end_time
-            return False
-            
-        
-        end_time = time.time() - start_time 
-        self.times[player.name] += end_time
 
-        #col toevoegen aan moves
-        log.debug(player.sign+':'+str(col))
-        self.moves.append(col)
-        
-        #controle op legal move 
-        if col == None:
-            log.info('Geen move gemaakt door {}({}) in game tegen {} :'.format(player.name,player.sign, str(opponent.name for opponent in self.players if opponent != player)))
-            
-            return False
-        if (col >= COLS) or (col<0):
-            log.info('ongeldige move gemaakt door {}({}) in game tegen {} :'.format(player.name,player.sign, str(opponent.name for opponent in self.players if opponent != player)))
-            
-            return False
-        #controle of col nog niet vol is
-        if self.moves.count(col) > ROWS:
-            log.info('ongeldige move(col is vol) door  {}({}) in game tegen {} :'.format(player.name,player.sign, str(opponent.name for opponent in self.players if opponent != player)))
-            
-            return False
-        
-        #return addCoinTostate(self.state,col,player.sign) 
-        return addCoinToArray(self.array,col,player.sign)     
-        
-    def play(self):       
-        def playthrough(): 
-            #wie begint er
-            active_player = self.players[0]
-            other_player = self.players[1]
-            #maximum aantal zetten        
-            for x in range(MAX_RANGE):            
-                if not self.turn(active_player):
-                    #illegal move
-                    return LOSE,other_player,active_player
-                elif controleArray(self.array):
-                    return WIN,active_player,other_player
-                #geen win is blijven spelen en spelers omwisselen
-                active_player,other_player = other_player,active_player
-            
-            log.info('draw')
-            return DRAW,active_player,other_player
-        
-        #bepaal wie wint door spel te spelen
-        winorlose,winner,loser = playthrough()   
-        
-        #stuur eindresultaat naar spelers
-        if winorlose == DRAW:
-            winner.endgame(DRAW,self.state,self.moves)
-            loser.endgame(DRAW,self.state,self.moves)
-        else:
-            winner.endgame(WIN,self.state,self.moves)
-            loser.endgame(LOSE,self.state,self.moves)
-            
-        #return resultaat    
-        return winorlose,winner,loser,self.times    
     
 def print_rows(state):
     rij = ''

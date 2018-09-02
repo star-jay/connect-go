@@ -14,10 +14,8 @@ import itertools
 import matplotlib.pyplot as plt
 import numpy as np
 
-import bots
-import vieropeenrij as x4
-import graphic
-from multiprocessing import Pool
+import connect_logic as x4
+from game import Game
 
 
 #ELO & ranking
@@ -55,7 +53,7 @@ def f(args):
 def playgame(args): 
     player1,player2,elo = args
     #play game
-    game = x4.Game((player1,player2,))
+    game = Game((player1,player2,))
 
     #return scores  
     return game.play()+(player1,player2,elo,)   
@@ -96,12 +94,12 @@ def calculateElo(players,scores):
                 
 class Tournament:
     
-    def __init__(self,players,aantal_rondes):
+    def __init__(self,players,number_of_rounds):
         self.scores = {}
         self.times = {}
         self.chart = []
         self.players = players
-        self.aantal_rondes = aantal_rondes
+        self.number_of_rounds = number_of_rounds
         
         self.all_combinations = list(itertools.permutations(self.players,2))
         
@@ -200,7 +198,7 @@ class Tournament:
             return results
 			        
         #p = Pool(4)       
-        for x in range(self.aantal_rondes):
+        for x in range(self.number_of_rounds):
 			#Adjust Elo to amount of rounds
             adjustK(x)
              
@@ -226,7 +224,7 @@ class Tournament:
     
 			#save a snapshot of the scores after each round
             self.saveScores()
-        return len(games)*self.aantal_rondes
+        return len(games)*self.number_of_rounds
 
     def run(self):
         global K
@@ -262,43 +260,5 @@ class Tournament:
 
         self.plot()
         self.heatmap()
-
-def main():   
-    import timing
-    aantal_rondes = 100
-    players = []
-  
-    #define players
-    #players.append(bots.Player())    
-    players.append(bots.BasicPlayer())
-    #players.append(bots.MirrorBot())    
-    #players.append(bots.CopyBot())
-    #players.append(bots.RandomPlayer()) 
-    #players.append(bots.ImprovedRandomPlayer())
-    
-    import ReinjanBots
-    import EmielsBots    
-
-    ##ADD YOUR BOT HERE##
-    #players.append(ReinjanBots.TrapBot(name='1',mode=(6,4,7, 3, 2, 1, 0, 5))) 
-    #players.append(ReinjanBots.TrapBot(name='2',mode=(7,6,4, 3, 2, 1, 0, 5))) 
-    #players.append(ReinjanBots.TrapBot(name='3',mode=(4,6,7, 3, 2, 1, 0, 5))) 
-    players.append(ReinjanBots.TrapBot()) 
-    players.append(ReinjanBots.Calculot()) 
-    players.append(ReinjanBots.GridBot()) 
-    players.append(ReinjanBots.SpeedyRandomPlayer()) 
-    
-    #start tournament
-    tournament = Tournament(players,aantal_rondes)
-    tournament.run()       
-    timing.endlog()
-    
-    #After the tournament run a game between two players
-    #game = graphic.GraphicGame(tournament.all_combinations.pop())
-    #game.play()
-    
-if __name__ == '__main__':
-    main()
-
     
    
