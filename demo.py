@@ -1,45 +1,51 @@
+# import timing
+# import traceback
+# import logging as log
 
-import timing
-import traceback
-import logging as log
-from tournament import Tournament
-from game import GraphicGame
+from connect.controller.tournament import Tournament
+from connect.controller.game import Game
+from graphics.graphic_game import GraphicGame
+from connect.bots.player import Player
 
-#import bots
-from bot_player import Player
-import bot_simplebots as bots   
-from bot_trapper import TrapBot 
-from ReinjanBots import GridBot
 
-def main():   
+def main():
 
     number_of_rounds = 100
     players = []
-    
-    #define players  
- 
-    players.append(Player())   
-    players.append(bots.MirrorBot())    
-    players.append(bots.CopyBot())
-    players.append(bots.RandomPlayer()) 
-    players.append(TrapBot()) 
-    players.append(GridBot())     
-    
-    #start tournament
-    try:
-        t = Tournament(players,number_of_rounds)
-        t.run()   
-    except:
-        log.error(traceback.format_exc())
-                    
-    timing.endlog()
-    
-def DemoGame():
-    #After the tournament run a game between two players
-    game = GraphicGame((GridBot(),Human('otto')))
-    game.play()
 
-    
+    # define players
+
+    players.append(Player())
+    players.append(Player())
+    players.append(Player())
+
+    # start tournament
+    # try:
+    t = Tournament(players, number_of_rounds)
+    t.run()
+    # except:
+    #     log.error(traceback.format_exc())
+
+    # timing.endlog()
+
+
+def DemoGame():
+    # After the tournament run a game between two players
+    game = Game(
+        (Player(), Player())
+    )
+    print(game.play())
+
+
+def DemoGraphics():
+    # View graphical representation of a game
+    game = GraphicGame(
+        (Player(), Player())
+    )
+    print(game.play())
+
+
 if __name__ == '__main__':
-    #main()
-    DemoGame()
+    # main()
+    # DemoGame()
+    DemoGraphics()
