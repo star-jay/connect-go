@@ -1,6 +1,6 @@
 import pytest
 
-from connect.controller.logic import (
+from connect.logic import (
     generate_board_from_moves,
     list_possible_combinations,
     add_move_to_moves,
@@ -11,10 +11,9 @@ from connect.controller.logic import (
     get_playable_cols,
     get_playable_nodes,
 )
-from connect.controller.settings import (
+from connect.settings import (
     ROWS,
     COLS,
-
 )
 
 

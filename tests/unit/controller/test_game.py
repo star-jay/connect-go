@@ -1,5 +1,5 @@
 import pytest
-from connect.controller.game import Game
+from connect.game import Game
 from connect.bots.player import Player
 
 

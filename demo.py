@@ -2,10 +2,11 @@
 # import traceback
 # import logging as log
 
-from connect.controller.tournament import Tournament
-from connect.controller.game import Game
-from graphics.graphic_game import GraphicGame
+from connect.tournament import Tournament
+from connect.game import Game
+from connect.graphic_game import GraphicGame
 from connect.bots.player import Player
+from connect.bots.trapbot import TrapBot
 
 
 def main():
@@ -18,6 +19,7 @@ def main():
     players.append(Player())
     players.append(Player())
     players.append(Player())
+    players.append(TrapBot())
 
     # start tournament
     # try:
@@ -32,7 +34,7 @@ def main():
 def DemoGame():
     # After the tournament run a game between two players
     game = Game(
-        (Player(), Player())
+        (Player(), TrapBot())
     )
     print(game.play())
 
@@ -40,7 +42,7 @@ def DemoGame():
 def DemoGraphics():
     # View graphical representation of a game
     game = GraphicGame(
-        (Player(), Player())
+        (Player(), TrapBot())
     )
     print(game.play())
 

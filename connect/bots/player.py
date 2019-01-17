@@ -14,7 +14,9 @@ class Player():
         self.name = 'unknown'
 
     def makeMove(self, moves):
-        return 0
+        moves = [1, 2]
+        random.shuffle(moves)
+        return moves.pop()
 
     def startgame(self):
         pass
