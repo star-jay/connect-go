@@ -1,7 +1,7 @@
 import time
 import traceback
 
-from connect.controller.logic import (
+from .logic import (
     game_meets_target,
     add_move_to_moves,
 )

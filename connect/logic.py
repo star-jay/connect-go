@@ -77,7 +77,7 @@ def combination_meets_target(combination):
     for x in range(len(combination)-(TARGET-1)):
         if [
             y is not None and y % 2 == combination[x] % 2
-            for y in combination[x:x+TARGET]
+            for y in combination[x:x+TARGET] if combination[x] is not None
         ].count(True) == TARGET:
             return True
 

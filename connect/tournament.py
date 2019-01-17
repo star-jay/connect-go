@@ -163,6 +163,7 @@ class Tournament:
         plt.ylabel('ELO')
         plt.xlabel('Rounds')
         plt.legend(plot, legends)
+        # plt.ion()
         plt.show()
 
     def heatmap(self):

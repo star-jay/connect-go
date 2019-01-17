@@ -3,8 +3,8 @@ A simple graphics example constructs a face from basic shapes.
 '''
 import connect.utils.graphics as g
 
-from connect.controller.game import Game
-from connect.controller.logic import generate_board_from_moves
+from connect.game import Game
+from connect.logic import generate_board_from_moves
 
 WIDTH = 640
 HEIGHT = 480
