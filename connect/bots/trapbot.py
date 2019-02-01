@@ -193,7 +193,7 @@ class TrapBot(Player):
         for node in nodes_l:
             for rij in self.node_rows[node]:
                 if self.scores_row[rij] == TARGET-1:
-                    log.info('Return Col({}), WIN rij:{}'.format(node[1],rij))
+                    log.info('Return Col({}), WIN rij:{}'.format(node[1], rij))
                     return node[1]
 
         # opp_win, kan al gecontroleerd zijn
@@ -201,12 +201,10 @@ class TrapBot(Player):
             for rij in self.node_rows_opp[node]:
                 if self.scores_row_opp[rij] == TARGET-1:
                     log.debug('Opp wil winnen col:{}'.format(node[1]))
-                    log.info('Return Col({}), Block tegenstander'.format(node[1]))
+                    log.info('Return Col({}), Block tegenstander'.format(node[1]))  # noqa
                     return node[1]
 
-
-
-         # trap is kijken voor welke node er de hoogste scores zijn
+        # trap is kijken voor welke node er de hoogste scores zijn
         for node in nodes_l:
             aantal = 0
             for rij in self.node_rows[node]:

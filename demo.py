@@ -1,11 +1,10 @@
-# import timing
-# import traceback
-# import logging as log
+import connect.database as db
 
 from connect.tournament import Tournament
 from connect.game import Game
 from connect.graphic_game import GraphicGame
 from connect.bots.player import Player
+from connect.bots.random import RandomPlayer
 from connect.bots.trapbot import TrapBot
 
 
@@ -31,23 +30,34 @@ def main():
     # timing.endlog()
 
 
-def DemoGame():
+def demo_game(players):
     # After the tournament run a game between two players
-    game = Game(
-        (Player(), TrapBot())
-    )
-    print(game.play())
+    game = Game(players)
+    game.play()
 
 
-def DemoGraphics():
+def demo_graphics(players):
     # View graphical representation of a game
-    game = GraphicGame(
-        (Player(), TrapBot())
-    )
-    print(game.play())
+    game = GraphicGame(players)
+    game.play()
+
+
+def fill_database(players):
+    # db.setup()
+    # for x in range(10**6):
+    #     demo_game(players)
+
+    db.analyze_data()
 
 
 if __name__ == '__main__':
     # main()
-    # DemoGame()
-    DemoGraphics()
+
+    players = (
+        Player(),
+        Player(),
+    )
+
+    demo_game(players)
+    # demo_graphics(players)
+    fill_database(players)

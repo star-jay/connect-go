@@ -1,6 +1,7 @@
 import time
 import traceback
 
+from .database import add_game_record
 from .logic import (
     game_meets_target,
     add_move_to_moves,
@@ -33,7 +34,7 @@ class Game():
     def start_game_for_player(self, player):
         start_time = time.time()
 
-        player.startgame()
+        player.start_game()
 
         end_time = time.time() - start_time
         self.times[player.name] += end_time
@@ -42,7 +43,7 @@ class Game():
         start_time = time.time()
 
         try:
-            move = player.makeMove(self.moves.copy())
+            move = player.make_move(self.moves.copy())
         except Exception:  # as e:
             # log.error('Error {} by {}({}) in game against {} :'.format(
             #         e,
@@ -88,11 +89,13 @@ class Game():
 
         # send result to players to process
         if win_or_lose == DRAW:
-            winner.endgame(DRAW, self.moves)
-            loser.endgame(DRAW, self.moves)
+            winner.end_game(DRAW, self.moves)
+            loser.end_game(DRAW, self.moves)
         else:
-            winner.endgame(WIN, self.moves)
-            loser.endgame(LOSE, self.moves)
+            winner.end_game(WIN, self.moves)
+            loser.end_game(LOSE, self.moves)
+
+        add_game_record(self.moves, win_or_lose)
 
         # return result
         return {

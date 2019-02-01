@@ -1,4 +1,5 @@
 import logging as log
+
 # logging
 log.basicConfig(
     level=log.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -12,3 +13,5 @@ TARGET = 4
 WIN = 1
 DRAW = 0
 LOSE = -1
+
+database_url = 'connect_go.db'
