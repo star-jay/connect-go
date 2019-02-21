@@ -44,16 +44,15 @@ class Game():
 
         try:
             move = player.make_move(self.moves.copy())
-        except Exception:  # as e:
-            # log.error('Error {} by {}({}) in game against {} :'.format(
-            #         e,
-            #         player.name,
-            #         player.sign,
-            #         str(opp.name for opp in self.players if opp != player)
-            # ))
+        except Exception as e:
+            log.error('Error {} by {} in game against {} :'.format(
+                    e,
+                    player.name,
+                    str(opp.name for opp in self.players if opp != player)
+            ))
             log.error(traceback.format_exc())
-            # for row in self.array:
-            #     log.info(row)
+            for row in self.array:
+                log.info(row)
             end_time = time.time() - start_time
             self.times[player.name] += end_time
             return False
@@ -62,7 +61,7 @@ class Game():
         self.times[player.name] += end_time
 
         # Add column to moves
-        # log.debug(player.sign+':'+str(move))
+        log.debug(player.name+':'+str(move))
         return add_move_to_moves(self.moves, move)
 
     def play(self):
