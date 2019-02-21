@@ -9,14 +9,10 @@ import random
 
 
 class Player():
-
-    def __init__(self):
-        self.name = 'unknown'
+    name = 'unknown'
 
     def makeMove(self, moves):
-        moves = [1, 2]
-        random.shuffle(moves)
-        return moves.pop()
+        return 0
 
     def startgame(self):
         pass
@@ -24,7 +20,11 @@ class Player():
     def endgame(self, winorlose, moves):
         pass
 
-    def random_move(self, moves):
-        cols = self.playable_cols(moves)
+
+class RandomPlayer(Player):
+    name = 'random_bot'
+
+    def makeMove(self, moves):
+        cols = [x for x in range(7)]
         random.shuffle(cols)
         return cols.pop()

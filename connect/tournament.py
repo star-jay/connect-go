@@ -284,4 +284,4 @@ class Tournament:
             print(player+' : '+str(round(self.times[player], 2)))
 
         self.plot()
-        self.heatmap()
+        # self.heatmap()

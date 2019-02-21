@@ -5,8 +5,8 @@
 from connect.tournament import Tournament
 from connect.game import Game
 from connect.graphic_game import GraphicGame
-from connect.bots.player import Player
-from connect.bots.trapbot import TrapBot
+from connect.bots.player import Player, RandomPlayer
+from connect.bots.trapbot import TrapBot, TrapBot2
 
 
 def main():
@@ -17,9 +17,10 @@ def main():
     # define players
 
     players.append(Player())
-    players.append(Player())
-    players.append(Player())
+    players.append(RandomPlayer())
+    # players.append(Player())
     players.append(TrapBot())
+    players.append(TrapBot2())
 
     # start tournament
     # try:
@@ -42,12 +43,12 @@ def DemoGame():
 def DemoGraphics():
     # View graphical representation of a game
     game = GraphicGame(
-        (Player(), TrapBot())
+        (TrapBot2(), TrapBot())
     )
     print(game.play())
 
 
 if __name__ == '__main__':
-    # main()
+    main()
     # DemoGame()
-    DemoGraphics()
+    # DemoGraphics()
