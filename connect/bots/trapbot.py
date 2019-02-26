@@ -471,6 +471,7 @@ class TrapBot2(TrapBot):
             #     winning_opp = node
 
         calc_scores = self.pick_move_from_scores(scores)
+        print(calc_scores)
         return max(calc_scores, key=lambda x: calc_scores[x])
 
     def pick_move_from_scores(self, scores):

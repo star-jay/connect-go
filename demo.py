@@ -8,19 +8,42 @@ from connect.graphic_game import GraphicGame
 from connect.bots.player import Player, RandomPlayer
 from connect.bots.trapbot import TrapBot, TrapBot2
 
+import random
+
 
 def main():
 
-    number_of_rounds = 100
+    number_of_rounds = 10
     players = []
 
     # define players
 
-    players.append(Player())
-    players.append(RandomPlayer())
+    for x in range(50):
+        l100 = [x for x in range(100)]
+        random.shuffle(l100)
+        weights = {
+                'som_van_rijen': l100.pop(),
+                'max_score': l100.pop(),
+                'aantal_rijen': l100.pop(),
+                'som_van_rijen_opp': l100.pop(),
+                'max_score_opp': l100.pop(),
+                'aantal_rijen_opp': l100.pop(),
+                'max_score_beide': l100.pop(),
+                'som_van_rijen_beide': l100.pop(),
+                'aantal_rijen_beide': l100.pop(),
+            }
+        players.append(
+            TrapBot2(
+                name=str(
+                    [value for key, value in weights.items()]),
+                weights=weights,
+            )
+        )
+
     # players.append(Player())
-    players.append(TrapBot())
-    players.append(TrapBot2())
+    # players.append(RandomPlayer())
+    # players.append(Player())
+    # players.append(TrapBot())
 
     # start tournament
     # try:
