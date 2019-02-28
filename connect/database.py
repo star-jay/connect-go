@@ -9,16 +9,35 @@ from .settings import (
 )
 
 
-def create_connection(db_file):
+CONNECTION = None
+
+
+def get_connection():
     """ create a database connection to a SQLite database """
+    if not CONNECTION:
+        setup()
+
+    return CONNECTION
+
+
+def setup():
+    global CONNECTION
+
+    CONNECTION = create_connection()
+
+
+def create_connection(db_file='connect_go.db'):
     try:
-        conn = sqlite3.connect(db_file)
+        connection = sqlite3.connect(db_file)
         log.debug('Connected to {}, with sqlite3 version: {}'.format(
             db_file, sqlite3.version))
+
+        create_games_table(connection)
+
     except Error as e:
         log(e)
 
-    return conn
+    return connection
 
 
 def create_games_table(conn):
@@ -37,16 +56,10 @@ def create_games_table(conn):
         log.error(e)
 
 
-def setup():
-    conn = create_connection(database_url)
-
-    create_games_table(conn)
-
-
 def add_game_record(moves, win_lose_or_draw):
     # connect to dB
-    conn = create_connection(database_url)
-    cur = conn.cursor()
+    conn = get_connection()
+    cur = CONNECTION.cursor()
 
     # format moves
     moves = ''.join(map(str, moves))
@@ -94,7 +107,7 @@ def add_game_record(moves, win_lose_or_draw):
 
 def analyze_data():
     # connect to dB
-    conn = create_connection(database_url)
+    conn = get_connection()
     cur = conn.cursor()
     # insert or update if first time
     sql = (
@@ -110,7 +123,7 @@ def analyze_data():
 
 if __name__ == '__main__':
         # create a database connection
-    conn = create_connection(database_url)
+    conn = get_connection()
     if conn is not None:
         # create projects table
         create_games_table(conn)
