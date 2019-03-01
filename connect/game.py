@@ -15,34 +15,36 @@ from .settings import (
 
 
 class Game():
-
     def __init__(self, players):
         self.moves = []
 
-        self.players = players
+        self.players = dict(
+            player1=players[0],
+            player2=players[1],
+        )
 
         # Keep time of each player
         self.times = {}
-        for player in players:
-            self.times[player.name] = 0
+        for player in self.players.keys():
+            self.times[player] = 0
 
         # each player gets a sign
-        for x in range(2):
-            self.start_game_for_player(self.players[x])
+        for player in self.players.keys():
+            self.start_game_for_player(player)
 
     def start_game_for_player(self, player):
         start_time = time.time()
 
-        player.startgame()
+        self.players[player].startgame()
 
         end_time = time.time() - start_time
-        self.times[player.name] += end_time
+        self.times[player] += end_time
 
     def turn(self, player):
         start_time = time.time()
 
         try:
-            move = player.makeMove(self.moves.copy())
+            move = self.players[player].makeMove(self.moves.copy())
         except Exception:  # as e:
             # log.error('Error {} by {}({}) in game against {} :'.format(
             #         e,
@@ -54,11 +56,11 @@ class Game():
             # for row in self.array:
             #     log.info(row)
             end_time = time.time() - start_time
-            self.times[player.name] += end_time
+            self.times[player] += end_time
             return False
 
         end_time = time.time() - start_time
-        self.times[player.name] += end_time
+        self.times[player] += end_time
 
         # Add column to moves
         # log.debug(player.sign+':'+str(move))
@@ -67,8 +69,8 @@ class Game():
     def play(self):
         def playthrough():
             # who starts
-            active_player = self.players[0]
-            other_player = self.players[1]
+            active_player = 'player1'
+            other_player = 'player2'
             # maximum amount of turns in a game
             for x in range(MAX_RANGE):
                 if not self.turn(active_player):
@@ -88,11 +90,11 @@ class Game():
 
         # send result to players to process
         if win_or_lose == DRAW:
-            winner.endgame(DRAW, self.moves)
-            loser.endgame(DRAW, self.moves)
+            self.players[winner].endgame(DRAW, self.moves)
+            self.players[loser].endgame(DRAW, self.moves)
         else:
-            winner.endgame(WIN, self.moves)
-            loser.endgame(LOSE, self.moves)
+            self.players[winner].endgame(WIN, self.moves)
+            self.players[loser].endgame(LOSE, self.moves)
 
         # return result
         return {
