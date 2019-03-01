@@ -62,7 +62,7 @@ class TrapBot(Player):
         return None
 
     # initieele waardes
-    def startgame(self):
+    def start_game(self):
         # basic move
         array = generate_board_from_moves()
 
@@ -115,7 +115,7 @@ class TrapBot(Player):
                                 node[1], rij))
                             self.blocked_cols.append(node[1])
 
-    def makeMove(self, moves):
+    def make_move(self, moves):
         # geen openening move
         log.info('calculating')
 
@@ -132,7 +132,7 @@ class TrapBot(Player):
         nodes = {x: moves.count(x) for x in cols}
 
         # col zoeken
-        col = self.findCol(game_state, moves, nodes)
+        col = self.find_col(game_state, moves, nodes)
 
         # random kolom
         if col is None:
@@ -147,7 +147,7 @@ class TrapBot(Player):
         random.shuffle(cols)
         return cols.pop()
 
-    def findCol(self, array, moves, nodes):
+    def find_col(self, array, moves, nodes):
         nodes_l = [
             (row, col) for col, row in nodes.items()
             if col not in self.blocked_cols
@@ -302,8 +302,6 @@ class TrapBot(Player):
             return result
         else:
             log.info('geen move gevonden')
-<<<<<<< HEAD
-=======
 
 
 class TrapBot2(TrapBot):
@@ -484,4 +482,3 @@ class TrapBot2(TrapBot):
         return {
             col: sum_scores(scores[col])
             for col in scores}
->>>>>>> master

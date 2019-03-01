@@ -101,7 +101,6 @@ def add_game_record(moves, win_lose_or_draw):
     """
     cur.execute(sql, (moves, player1, player2, draw,))
     conn.commit()
-
     return cur.lastrowid
 
 
@@ -112,9 +111,11 @@ def analyze_data():
     # insert or update if first time
     sql = (
         "select count(moves), max(player1), max(player2), max(draw)"
-        "from games")
+        "from games"
+    )
     for row in cur.execute(sql):
-        print(row)
+        print(
+            'moves: {}, wins: player1: {}, player2: {}, draw: {}'.format(*row))
 
     # sql = "SELECT * FROM games"
     # for row in cur.execute(sql):
@@ -122,10 +123,5 @@ def analyze_data():
 
 
 if __name__ == '__main__':
-        # create a database connection
-    conn = get_connection()
-    if conn is not None:
-        # create projects table
-        create_games_table(conn)
-    else:
-        log.error("Error! cannot create the database connection.")
+    # create a database connection
+    analyze_data()

@@ -3,6 +3,7 @@ import argparse
 from connect.tournament import Tournament
 from connect.game import Game
 from connect.graphic_game import GraphicGame
+from connect.database import analyze_data
 # Bots
 from connect.bots.player import Player
 from connect.bots.random import RandomPlayer
@@ -27,8 +28,12 @@ def game(players):
 
 def graphics(players):
     # View graphical representation of a game
-    game = GraphicGame(players)
+    game = GraphicGame(players.pop(), players.pop())
     game.play()
+
+
+def database():
+    analyze_data()
 
 
 if __name__ == '__main__':
@@ -38,7 +43,7 @@ if __name__ == '__main__':
         '-t',
         '--type',
         dest='mode',
-        help='Demo type: [tournament, game, graphics]',
+        help='Demo type: [tournament, game, graphics, database]',
         default='tournament',
     )
     parser.add_argument(
@@ -67,3 +72,6 @@ if __name__ == '__main__':
 
     if args.mode == 'graphics':
         graphics(players)
+
+    if args.mode == 'database':
+        database()

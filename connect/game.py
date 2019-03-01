@@ -46,16 +46,14 @@ class Game():
 
         try:
             move = self.players[player].makeMove(self.moves.copy())
-        except Exception:  # as e:
+        except Exception as e:
             log.error('Error {} by {} in game against {} :'.format(
                     e,
-                    player,
-                    player.sign,
-                    str(opp.name for opp in self.players if opp != player)
+                    self.players[player].name,
+                    self.players[[opp for opp in self.players if opp != player].pop()].name
             ))
             log.error(traceback.format_exc())
-            for row in self.array:
-                log.info(row)
+
             end_time = time.time() - start_time
             self.times[player] += end_time
             return False
@@ -68,7 +66,7 @@ class Game():
         return add_move_to_moves(self.moves, move)
 
     def play(self):
-        def playthrough():
+        def play_through():
             # who starts
             active_player = 'player1'
             other_player = 'player2'
@@ -87,7 +85,7 @@ class Game():
             return DRAW, active_player, other_player
 
         # play the game and determine winner
-        win_or_lose, winner, loser = playthrough()
+        win_or_lose, winner, loser = play_through()
 
         # send result to players to process
         if win_or_lose == DRAW:
@@ -96,6 +94,8 @@ class Game():
         else:
             self.players[winner].end_game(WIN, self.moves)
             self.players[loser].end_game(LOSE, self.moves)
+
+        add_game_record(self.moves, win_or_lose)
 
         # return result
         return {
