@@ -1,63 +1,69 @@
-import connect.database as db
+import argparse
 
 from connect.tournament import Tournament
 from connect.game import Game
 from connect.graphic_game import GraphicGame
+# Bots
 from connect.bots.player import Player
 from connect.bots.random import RandomPlayer
 from connect.bots.trapbot import TrapBot
 
 
-def main():
-
+def tournament(players, plot=False):
     number_of_rounds = 100
-    players = []
 
-    # define players
-
-    players.append(Player())
-    players.append(Player())
-    players.append(Player())
-    players.append(TrapBot())
-
-    # start tournament
-    # try:
     t = Tournament(players, number_of_rounds)
     t.run()
-    # except:
-    #     log.error(traceback.format_exc())
 
-    # timing.endlog()
+    if plot:
+        t.plot()
 
 
-def demo_game(players):
+def game(players):
     # After the tournament run a game between two players
-    game = Game(players)
+    game = Game(players.pop(), players.pop())
     game.play()
 
 
-def demo_graphics(players):
+def graphics(players):
     # View graphical representation of a game
     game = GraphicGame(players)
     game.play()
 
 
-def fill_database(players):
-    # db.setup()
-    # for x in range(10**6):
-    #     demo_game(players)
-
-    db.analyze_data()
-
-
 if __name__ == '__main__':
-    # main()
-
-    players = (
-        Player(),
-        Player(),
+    parser = argparse.ArgumentParser(description='Process a task.')
+    # Named (optional) arguments
+    parser.add_argument(
+        '-t',
+        '--type',
+        dest='mode',
+        help='Demo type: [tournament, game, graphics]',
+        default='tournament',
+    )
+    parser.add_argument(
+        '-p',
+        '--plot',
+        dest='plot',
+        help='plot the tournament elo progress',
+        action='store_true',
     )
 
-    demo_game(players)
-    # demo_graphics(players)
-    fill_database(players)
+    players = {
+        'player1': Player(),
+        'player2': Player(),
+        'player3': Player(),
+        'random': RandomPlayer(),
+        'trapbot': TrapBot(),
+    }
+
+    args = parser.parse_args()
+
+    if args.mode == 'tournament':
+        tournament(players, getattr(args, 'plot', False))
+
+    if args.mode == 'game':
+        game(players)
+
+    if args.mode == 'graphics':
+        graphics(players)
