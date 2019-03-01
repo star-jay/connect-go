@@ -2,7 +2,7 @@ import logging as log
 
 # logging
 log.basicConfig(
-    level=log.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
+    level=log.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 ROWS = 6

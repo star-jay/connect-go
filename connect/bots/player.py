@@ -9,7 +9,7 @@ Created on Tue Apr 24 15:28:18 2018
 class Player():
     name = 'unknown'
 
-    def makeMove(self, moves):
+    def make_move(self, moves):
         return 0
 
     def start_game(self):

@@ -45,7 +45,7 @@ class Game():
         start_time = time.time()
 
         try:
-            move = self.players[player].makeMove(self.moves.copy())
+            move = self.players[player].make_move(self.moves.copy())
         except Exception as e:
             log.error('Error {} by {} in game against {} :'.format(
                     e,
