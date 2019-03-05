@@ -8,6 +8,13 @@ from connect.bots.player import Player
 from connect.bots.random import RandomPlayer
 from connect.bots.trapbot import TrapBot
 
+# Full list of possible bots
+bots = {
+    'player': Player,
+    'random': RandomPlayer,
+    'trapbot': TrapBot,
+}
+
 
 def tournament(players, plot=False):
     number_of_rounds = 100
@@ -25,9 +32,9 @@ def game(players):
     game.play()
 
 
-def graphics(players):
+def graphics(players, bot=None):
     # View graphical representation of a game
-    game = GraphicGame(players)
+    game = GraphicGame(players=players, bot=bot)
     game.play()
 
 
@@ -48,22 +55,41 @@ if __name__ == '__main__':
         help='plot the tournament elo progress',
         action='store_true',
     )
-
-    players = {
-        'player1': Player(),
-        'player2': Player(),
-        'player3': Player(),
-        'random': RandomPlayer(),
-        'trapbot': TrapBot(),
-    }
+    parser.add_argument(
+        '-b',
+        '--bots',
+        dest='bots',
+        help='list the bots that you want to have compete',
+        nargs='+',
+        default=list()
+    )
+    parser.add_argument(
+        '-H',
+        '--human',
+        dest='human',
+        help='list',
+        action='store_true',
+    )
 
     args = parser.parse_args()
 
     if args.mode == 'tournament':
-        tournament(players, getattr(args,'plot', False))
+        players = {
+                bot: bots[bot]() for bot in args.bots
+            }
+        tournament(players, getattr(args, 'plot', False))
 
-    if args.mode == 'game':
-        game(players)
+    else:
+        if len(args.bots) > 0:
+            players = tuple(
+                bots[player]() for player in args.bots)
+        else:
+            players = Player(), Player()
+        if args.mode == 'game':
+            game(players)
 
-    if args.mode == 'graphics':
-        graphics(players)
+        if args.mode == 'graphics':
+            if args.human and len(players) == 1:
+                graphics(players=None, bot=players[0])
+            elif len(players) == 2:
+                graphics(players)

@@ -19,12 +19,3 @@ class Player():
 
     def endgame(self, winorlose, moves):
         pass
-
-
-class RandomPlayer(Player):
-    name = 'random_bot'
-
-    def makeMove(self, moves):
-        cols = [x for x in range(7)]
-        random.shuffle(cols)
-        return cols.pop()

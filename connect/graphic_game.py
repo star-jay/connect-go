@@ -1,10 +1,13 @@
 '''
 A simple graphics example constructs a face from basic shapes.
 '''
+from time import sleep
+
 import connect.utils.graphics as g
 
+from connect.bots.player import Player
 from connect.game import Game
-from connect.logic import generate_board_from_moves
+from connect.logic import generate_board_from_moves, get_playable_cols
 
 WIDTH = 640
 HEIGHT = 480
@@ -19,14 +22,39 @@ p_HEIGHT = HEIGHT - MARGIN * 2
 COLORS = ('red', 'yellow', 'green')
 
 
-class GraphicGame(Game):
-    def __init__(self, players):
-        super(GraphicGame, self).__init__(players)
+class Human(Player):
 
+    def __init__(self, win, name='Human'):
+        self.name = name
+        self.win = win
+
+    def makeMove(self, moves):
+        key = ''
+        cols = get_playable_cols(moves)
+        while key not in cols:
+            key = self.win.getKey()
+            try:
+                key = int(key)
+            except Exception:
+                key = ''
+
+        return key
+
+
+class GraphicGame(Game):
+    def __init__(self, players=None, bot=None, ):
         # give title and dimensions
         self.win = g.GraphWin('4x4', WIDTH+SIDEPANEL, HEIGHT)
-        # make right side up coordinates!
+        if players is None:
+            if bot is None:
+                players = (
+                    Human(self.win, 'player1'), Human(self.win, 'player2'))
+            else:
+                players = bot, Human(self.win, 'player2')
 
+        super(GraphicGame, self).__init__(players)
+
+        # make right side up coordinates!
         # win.yUp()
         board = g.Rectangle(
             g.Point(0, 0),
@@ -47,7 +75,7 @@ class GraphicGame(Game):
             label.draw(self.win)
 
     def turn(self, player):
-        self.win.getMouse()
+        sleep(1)
         result = super(GraphicGame, self).turn(player)
         self.draw_array(generate_board_from_moves(self.moves))
         # win.close()
