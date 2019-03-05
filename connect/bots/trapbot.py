@@ -204,9 +204,7 @@ class TrapBot(Player):
                     log.info('Return Col({}), Block tegenstander'.format(node[1]))
                     return node[1]
 
-
-
-         # trap is kijken voor welke node er de hoogste scores zijn
+        # trap is kijken voor welke node er de hoogste scores zijn
         for node in nodes_l:
             aantal = 0
             for rij in self.node_rows[node]:

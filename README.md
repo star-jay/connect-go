@@ -1,33 +1,30 @@
-# 4x4 :4-op-een-rij #
+# connect-go #
 
-Wedstrijd tussen verschillende bots die variaties van 4-op-een-rij spelen. 
+A game between bots who play connect-four.
 
-### Een nieuwe Bot ###
+### Playing the game ###
 
-Maak een bot aan die overerft van `Player` in bots.py.
+In `demo.py` you can see some examples of games between two players. To create a new game you need to create two players and pass them as an iterable to the `Game()` class.
 
-    class Mybot(bots.Player):
+    players = [Player(), MyBot(), ]
+    game = Game(players=players)
+    game.play()
 
-Voeg daarna je bot toe in tornooi.py `Main()` function.
+### Build your own bot ###
 
-    players.append(MyBot())
+You can create your own bot by adding a new file in the folder `connect/bots/your_file.py`
 
-Run daarna tornooi.py. Elke bot speelt een bepaald aantal games tegen elkaar. Wie op het einde van het tornooi de hoogste ELO-ranking heeft wint. Er is ook een ranking op tijd en originaliteit.
+You can see an example of a bot in `player.py`. `Player()` has all the functions you need to play a game of connect.
 
-### Bot ontwerp ###
+There is only one required method and that is `make_move(self, moves)`.
+It gets the game info as a list of `moves` and should return the column `0-6` that you want to play.
 
-Het grootste bulk van je code speelt zich af in de `makeMove(self,game_state,moves)` functie. 
-Hierin komt je code die bepaalt welke kolom je bot speelt. Bij een ongeldige kolom verlies je de huidige game. 
-`game_state` is een list met alle mogelijke velden. Tijdens het spel veranderen de waardes van neutraal naar het teken van de spelers.
- `moves` is een lijst van alle opeenvolgende moves die gemaakt zijn. Andere belangrijke functies zijn `startgame(self,sign)` en `endgame(self,winorlose,game_state,moves)`. Deze worden op opgeroepen voor en na een game tussen twee bots. Je bot zelf wordt één keer aangemaakt bij de start van het tornooi.
- 
-### Game-logic ###
-De game-logic vind je terug in vieropeenrij.py. Deze functies kan je gebruiken bij het ontwerp van je bot.
+### Settings ###
 
-Volgende constanten bepalen hoe een spel gespeeld wordt :
+Most modules use the same constants that define the boundaries of a game. You can find these in `connect/settings.py`. Idealy a bot should be able to work different settings.
 
-    #DIMENSIONS
     ROWS = 6
     COLS = 7
     MAX_RANGE = ROWS * COLS
     TARGET = 4
+

@@ -24,5 +24,3 @@ def test_game_play(game):
     assert 'winner' in result
     assert 'loser' in result
     assert 'times' in result
-
-
