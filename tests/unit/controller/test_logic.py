@@ -17,11 +17,6 @@ from connect.settings import (
 )
 
 
-@pytest.fixture
-def empty_board():
-    return generate_board_from_moves()
-
-
 def test_create_empty_board():
     """
     The board generated has the right dimmensions,
@@ -34,6 +29,17 @@ def test_create_empty_board():
     assert sum(
         board[x].count(None) for x in range(ROWS)
         ) == ROWS * COLS
+
+
+def test_create_empty_board_one_dimensional():
+    """
+    The board generated has the right dimmensions,
+    and is filled with given values
+    """
+    board = generate_board_from_moves(one_dimensional=True)
+    assert len(board) == ROWS * COLS
+
+    assert board.count(None) == ROWS * COLS
 
 
 def test_add_move_to_moves():

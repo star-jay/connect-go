@@ -35,7 +35,8 @@ class Game():
     def start_game_for_player(self, player):
         start_time = time.time()
 
-        self.players[player].startgame()
+        if hasattr(self.players[player], 'startgame'):
+            self.players[player].startgame()
 
         end_time = time.time() - start_time
         self.times[player] += end_time
@@ -44,7 +45,14 @@ class Game():
         start_time = time.time()
 
         try:
-            move = self.players[player].makeMove(self.moves.copy())
+            if hasattr(self.players[player], 'makeMove'):
+                move = self.players[player].makeMove(self.moves.copy())
+            elif hasattr(self.players[player], 'make_move'):
+                move = self.players[player].make_move(self.moves.copy())
+            else:
+                # player is a function
+                move = self.players[player](self.moves.copy())
+
         except Exception:  # as e:
             # log.error('Error {} by {}({}) in game against {} :'.format(
             #         e,
@@ -57,6 +65,7 @@ class Game():
             #     log.info(row)
             end_time = time.time() - start_time
             self.times[player] += end_time
+            log.error(self.moves)
             return False
 
         end_time = time.time() - start_time
@@ -89,12 +98,12 @@ class Game():
         win_or_lose, winner, loser = playthrough()
 
         # send result to players to process
-        if win_or_lose == DRAW:
-            self.players[winner].endgame(DRAW, self.moves)
-            self.players[loser].endgame(DRAW, self.moves)
-        else:
-            self.players[winner].endgame(WIN, self.moves)
-            self.players[loser].endgame(LOSE, self.moves)
+        # if win_or_lose == DRAW:
+        #     self.players[winner].endgame(DRAW, self.moves)
+        #     self.players[loser].endgame(DRAW, self.moves)
+        # else:
+        #     self.players[winner].endgame(WIN, self.moves)
+        #     self.players[loser].endgame(LOSE, self.moves)
 
         # return result
         return {

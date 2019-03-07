@@ -6,9 +6,7 @@ from connect.graphic_game import GraphicGame
 # Bots
 from connect.bots.player import Player
 from connect.bots.random import RandomPlayer
-from connect.bots.trapbot import TrapBot
-
-import random
+from connect.bots.trapbot import TrapBot, trap_bot
 
 
 def tournament(players, plot=False):
@@ -23,8 +21,9 @@ def tournament(players, plot=False):
 
 def game(players):
     # After the tournament run a game between two players
-    game = Game(players.pop(), players.pop())
-    game.play()
+    game = Game(players)
+    print(game.play())
+    print(game.moves)
 
 
 def graphics(players):
@@ -53,10 +52,12 @@ if __name__ == '__main__':
 
     players = {
         'player1': Player(),
-        'player2': Player(),
-        'player3': Player(),
+        # 'player2': Player(),
+        # 'player3': Player(),
         'random': RandomPlayer(),
         'trapbot': TrapBot(),
+        # 'trapbot2': TrapBot(),
+        'trapbot3': trap_bot,
     }
 
     args = parser.parse_args()
@@ -65,7 +66,11 @@ if __name__ == '__main__':
         tournament(players, getattr(args, 'plot', False))
 
     if args.mode == 'game':
-        game(players)
+        game(
+            (players['trapbot3'], players['trapbot'])
+        )
 
     if args.mode == 'graphics':
-        graphics(players)
+        graphics(
+            (players['player1'], players['trapbot3'])
+        )

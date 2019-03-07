@@ -9,17 +9,23 @@ from .settings import (
 )
 
 
-def generate_board_from_moves(moves=[]):
+def generate_board_from_moves(moves=[], one_dimensional=False):
     """
     Generate a board filled with moves,
     the board is list of ROWS starting with the bottom one
     """
-    board = [[None for x in range(COLS)] for y in range(ROWS)]
+    if one_dimensional:
+        board = [None for x in range(COLS*ROWS)]
+    else:
+        board = [[None for x in range(COLS)] for y in range(ROWS)]
 
     for move in range(len(moves)):
         column = moves[move]
         row = moves[:move].count(column)
-        board[row][column] = move
+        if one_dimensional:
+            board[row*COLS + column] = move
+        else:
+            board[row][column] = move
 
     return board
 

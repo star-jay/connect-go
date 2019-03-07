@@ -34,17 +34,17 @@ class GraphicGame(Game):
         board.setFill('darkblue')
         board.draw(self.win)
 
-        label = g.Text(g.Point(WIDTH + MARGIN, MARGIN), players[0].name)
+        player1 = getattr(self.players['player1'], 'name', 'player1')
+        label = g.Text(g.Point(WIDTH + MARGIN, MARGIN), player1)
         label.setStyle("bold")
         label.setFill(COLORS[0])
         label.draw(self.win)
 
-        for x in range(len(players)):
-            label = g.Text(
-                g.Point(WIDTH + MARGIN, MARGIN*(x+1)), players[x].name)
-            label.setStyle("bold")
-            label.setFill(COLORS[x])
-            label.draw(self.win)
+        player2 = getattr(self.players['player2'], 'name', 'player2')
+        label = g.Text(g.Point(WIDTH + MARGIN, MARGIN*2), player2)
+        label.setStyle("bold")
+        label.setFill(COLORS[0])
+        label.draw(self.win)
 
     def turn(self, player):
         self.win.getMouse()
