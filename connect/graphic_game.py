@@ -50,7 +50,7 @@ class GraphicGame(Game):
                 players = (
                     Human(self.win, 'player1'), Human(self.win, 'player2'))
             else:
-                players = bot, Human(self.win, 'player2')
+                players = Human(self.win, 'player2'), bot
 
         super(GraphicGame, self).__init__(players)
 
