@@ -220,8 +220,6 @@ class Tournament:
         loser = game_result['loser']
         elo = game_result['elo']
 
-        print(game_result)
-
         try:
             if win_or_lose == DRAW:
                 log.debug('Draw')

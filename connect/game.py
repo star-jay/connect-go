@@ -36,7 +36,9 @@ class Game():
     def start_game_for_player(self, player):
         start_time = time.time()
 
-        if hasattr(self.players[player], 'startgame'):
+        if hasattr(self.players[player], 'start_game'):
+            self.players[player].start_game()
+        elif hasattr(self.players[player], 'startgame'):
             self.players[player].startgame()
 
         end_time = time.time() - start_time
@@ -57,8 +59,8 @@ class Game():
         except Exception as e:
             log.error('Error {} by {} in game against {} :'.format(
                     e,
-                    self.players[player].name,
-                    self.players[[opp for opp in self.players if opp != player].pop()].name
+                    player,
+                    [opp for opp in self.players if opp != player].pop(),
             ))
             log.error(traceback.format_exc())
 
@@ -97,12 +99,12 @@ class Game():
         win_or_lose, winner, loser = play_through()
 
         # send result to players to process
-        if win_or_lose == DRAW:
-            self.players[winner].end_game(DRAW, self.moves)
-            self.players[loser].end_game(DRAW, self.moves)
-        else:
-            self.players[winner].end_game(WIN, self.moves)
-            self.players[loser].end_game(LOSE, self.moves)
+        # if win_or_lose == DRAW:
+        #     self.players[winner].end_game(DRAW, self.moves)
+        #     self.players[loser].end_game(DRAW, self.moves)
+        # else:
+        #     self.players[winner].end_game(WIN, self.moves)
+        #     self.players[loser].end_game(LOSE, self.moves)
 
         add_game_record(self.moves, win_or_lose)
 
