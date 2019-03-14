@@ -273,9 +273,9 @@ def pick_move_from_scores(scores, weights=None):
             'som_van_rijen_opp': 4,
             'max_score_opp': 5,
             'aantal_rijen_opp': 1,
-            'max_score_beide': 6,
-            'som_van_rijen_beide': 8,
-            'aantal_rijen_beide': 9,
+            'max_score_beide': 0,
+            'som_van_rijen_beide': 0,
+            'aantal_rijen_beide': 0,
             'trap_score': 11,
             'trap_score_opp': 10,
         }
@@ -471,8 +471,8 @@ class TrapBot(Player):
         ]
 
         # if only move is win or lose then play it
-        # winning = False
-        # winning_opp = False
+        winning = False
+        winning_opp = False
 
         # score berekenen
         scores = {}
@@ -526,20 +526,19 @@ class TrapBot(Player):
                 'aantal_rijen_beide': aantal_rijen_beide,
             }
 
-            # if winning is False and max_score == TARGET-1:
-            #     winning = node
-            # if winning_opp is False and max_score_opp == TARGET-1:
-            #     winning_opp = node
+            if winning is False and max_score == TARGET-1:
+                winning = node
+            if winning_opp is False and max_score_opp == TARGET-1:
+                winning_opp = node
 
-        # if winning is True:
-        #     log.info('Return Col({}) winning move'.format(winning[1]))
-        #     return winning[1]
-        # if winning_opp is True:
-        #     log.info('Return Col({}) blocking move'.format(winning_opp[1]))
-        #     return winning_opp[1]
+        if winning is True:
+            log.info('Return Col({}) winning move'.format(winning[1]))
+            return winning[1]
+        if winning_opp is True:
+            log.info('Return Col({}) blocking move'.format(winning_opp[1]))
+            return winning_opp[1]
 
         calc_scores = self.pick_move_from_scores(scores)
-        print(calc_scores)
         return max(calc_scores, key=lambda x: calc_scores[x])
 
     def pick_move_from_scores(self, scores):
