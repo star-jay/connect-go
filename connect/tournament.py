@@ -154,7 +154,6 @@ class Tournament:
                 'player1': player1,
                 'player2': player2
         }
-
         result = game.play()
         # update times
         result['times'] = {
@@ -220,6 +219,9 @@ class Tournament:
         winner = game_result['winner']
         loser = game_result['loser']
         elo = game_result['elo']
+
+        print(game_result)
+
         try:
             if win_or_lose == DRAW:
                 log.debug('Draw')
@@ -229,6 +231,7 @@ class Tournament:
                 scores[winner] += elo[winner][WIN]
                 scores[loser] += elo[loser][LOSE]
         except KeyError as e:
+            print(e)
             log.error('I got an IndexError - reason "%s"' % str(e))
 
     def add_to_matchup(self, game_result):

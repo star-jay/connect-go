@@ -4,6 +4,7 @@ import inspect
 from connect.tournament import Tournament
 from connect.game import Game
 from connect.graphic_game import GraphicGame
+from connect.database import analyze_data
 # Bots
 from connect.bots.player import Player
 from connect.bots.random import RandomPlayer
@@ -44,6 +45,10 @@ def graphics(players, bot=None):
     game.play()
 
 
+def database():
+    analyze_data()
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Process a task.')
@@ -52,7 +57,7 @@ if __name__ == '__main__':
         '-t',
         '--type',
         dest='mode',
-        help='Demo type: [tournament, game, graphics]',
+        help='Demo type: [tournament, game, graphics, database]',
         default='tournament',
     )
     parser.add_argument(
@@ -80,8 +85,9 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-
-    if args.mode == 'tournament':
+    if args.mode == 'database':
+        database()
+    elif args.mode == 'tournament':
         if len(args.bots) > 1:
             players = {
                 bot: bots[bot] for bot in args.bots

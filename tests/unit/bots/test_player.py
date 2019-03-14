@@ -10,4 +10,4 @@ def test_bot_name():
 def test_bot_make_move():
     bot = Player()
 
-    assert bot.makeMove([]) in [x for x in range(6)]
+    assert bot.make_move([]) in [x for x in range(6)]

@@ -1,10 +1,12 @@
 import pytest
+from connect.database import setup
 from connect.game import Game
 from connect.bots.player import Player
 
 
 @pytest.fixture
 def game():
+    setup()
     players = (Player(), Player())
     return Game(players)
 

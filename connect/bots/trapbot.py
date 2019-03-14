@@ -307,7 +307,7 @@ class TrapBot(Player):
         self.name = name
 
     # initieele waardes
-    def startgame(self):
+    def start_game(self):
         # basic move
 
         self.list_r = list_combinations()
@@ -375,7 +375,7 @@ class TrapBot(Player):
         nodes = {x: moves.count(x) for x in cols}
 
         # col zoeken
-        col = self.findCol(game_state, moves, nodes)
+        col = self.find_col(game_state, moves, nodes)
 
         # random kolom
         if col is None:
@@ -390,7 +390,7 @@ class TrapBot(Player):
         random.shuffle(cols)
         return cols.pop()
 
-    def findCol(self, array, moves, nodes):
+    def find_col(self, array, moves, nodes):
         nodes_l = [
             (row, col) for col, row in nodes.items()
             if col not in self.blocked_cols

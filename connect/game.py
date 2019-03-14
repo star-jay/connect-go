@@ -1,6 +1,7 @@
 import time
 import traceback
 
+from .database import add_game_record
 from .logic import (
     game_meets_target,
     add_move_to_moves,
@@ -53,16 +54,14 @@ class Game():
                 # player is a function
                 move = self.players[player](self.moves.copy())
 
-        except Exception:  # as e:
-            # log.error('Error {} by {}({}) in game against {} :'.format(
-            #         e,
-            #         player.name,
-            #         player.sign,
-            #         str(opp.name for opp in self.players if opp != player)
-            # ))
+        except Exception as e:
+            log.error('Error {} by {} in game against {} :'.format(
+                    e,
+                    self.players[player].name,
+                    self.players[[opp for opp in self.players if opp != player].pop()].name
+            ))
             log.error(traceback.format_exc())
-            # for row in self.array:
-            #     log.info(row)
+
             end_time = time.time() - start_time
             self.times[player] += end_time
             log.error(self.moves)
@@ -72,11 +71,11 @@ class Game():
         self.times[player] += end_time
 
         # Add column to moves
-        # log.debug(player.sign+':'+str(move))
+        log.debug('{}: {}'.format(player, move))
         return add_move_to_moves(self.moves, move)
 
     def play(self):
-        def playthrough():
+        def play_through():
             # who starts
             active_player = 'player1'
             other_player = 'player2'
@@ -95,15 +94,17 @@ class Game():
             return DRAW, active_player, other_player
 
         # play the game and determine winner
-        win_or_lose, winner, loser = playthrough()
+        win_or_lose, winner, loser = play_through()
 
         # send result to players to process
-        # if win_or_lose == DRAW:
-        #     self.players[winner].endgame(DRAW, self.moves)
-        #     self.players[loser].endgame(DRAW, self.moves)
-        # else:
-        #     self.players[winner].endgame(WIN, self.moves)
-        #     self.players[loser].endgame(LOSE, self.moves)
+        if win_or_lose == DRAW:
+            self.players[winner].end_game(DRAW, self.moves)
+            self.players[loser].end_game(DRAW, self.moves)
+        else:
+            self.players[winner].end_game(WIN, self.moves)
+            self.players[loser].end_game(LOSE, self.moves)
+
+        add_game_record(self.moves, win_or_lose)
 
         # return result
         return {
