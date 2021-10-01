@@ -9,9 +9,11 @@ from connect.database import analyze_data
 from connect.bots.player import Player
 from connect.bots.random import RandomPlayer
 from connect.bots.trapbot import TrapBot, trap_bot
+from connect.bots.pruner import Pruner
 
 # Full list of possible bots
 bots = {
+    'prunter': Pruner,
     'player': Player,
     'random': RandomPlayer,
     'trapbot': TrapBot,
@@ -20,7 +22,7 @@ bots = {
 
 
 def tournament(players, plot=False):
-    number_of_rounds = 100
+    number_of_rounds = 20
     for name, player in players.items():
         if inspect.isclass(player):
             players[name] = player()

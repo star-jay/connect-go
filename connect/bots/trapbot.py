@@ -10,6 +10,7 @@ import copy
 from connect.bots.player import Player
 from connect.logic import (
     generate_board_from_moves,
+    revert_sign,
 )
 from connect.settings import (
     log,
@@ -17,13 +18,6 @@ from connect.settings import (
     ROWS,
     TARGET,
 )
-
-
-def revert_sign(sign):
-    if sign == 0:
-        return 1
-    else:
-        return 0
 
 
 def list_combinations(split=True):

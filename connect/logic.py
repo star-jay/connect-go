@@ -113,3 +113,10 @@ def get_playable_nodes(moves):
         x: moves.count(x) for x in range(COLS)
         if moves.count(x) < ROWS
     }
+
+
+def revert_sign(sign):
+    if sign == 0:
+        return 1
+    else:
+        return 0
