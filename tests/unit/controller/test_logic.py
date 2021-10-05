@@ -71,7 +71,9 @@ def test_combination_meets_target():
 def test_game_meets_target():
     assert game_meets_target([]) is False
     assert game_meets_target([0, 0, 0, 7]) is False
-    assert game_meets_target([0, 1, 0, 1, 0, 1, 0])
+    assert game_meets_target([0, 1, 0, 1, 0, 1, 0]) is True
+    assert game_meets_target([1, 3, 1, 3, 1, 3, 1]) is True
+    assert game_meets_target([1, 3, 1, 3, 1, 0, 0, 0, 1]) is True
 
 
 def test_list_possible_combinations():

@@ -1,0 +1,282 @@
+{'score': -4, 'nodes': {
+        0: {'score': -10, 'nodes': {
+                0: {'score': -2, 'nodes': {
+                        0: {'score': 5, 'nodes': {
+                                0: {'score': 7
+                                },
+                                1: {'score': 7
+                                },
+                                2: {'score': -2
+                                }
+                            }
+                        },
+                        1: {'score': -2, 'nodes': {
+                                0: {'score': -9
+                                },
+                                1: {'score': 8
+                                },
+                                2: {'score': -3
+                                }
+                            }
+                        },
+                        2: {'score': 5, 'nodes': {
+                                0: {'score': 0
+                                },
+                                1: {'score': 3
+                                },
+                                2: {'score': -7
+                                }
+                            }
+                        }
+                    }
+                },
+                1: {'score': 3, 'nodes': {
+                        0: {'score': 7, 'nodes': {
+                                0: {'score': -2
+                                },
+                                1: {'score': -6
+                                },
+                                2: {'score': 5
+                                }
+                            }
+                        },
+                        1: {'score': 1, 'nodes': {
+                                0: {'score': -1
+                                },
+                                1: {'score': -10
+                                },
+                                2: {'score': -3
+                                }
+                            }
+                        },
+                        2: {'score': 0, 'nodes': {
+                                0: {'score': 10
+                                },
+                                1: {'score': 5
+                                },
+                                2: {'score': 8
+                                }
+                            }
+                        }
+                    }
+                },
+                2: {'score': -5, 'nodes': {
+                        0: {'score': -5, 'nodes': {
+                                0: {'score': -5
+                                },
+                                1: {'score': -1
+                                },
+                                2: {'score': -3
+                                }
+                            }
+                        },
+                        1: {'score': 4, 'nodes': {
+                                0: {'score': -5
+                                },
+                                1: {'score': 10
+                                },
+                                2: {'score': -2
+                                }
+                            }
+                        },
+                        2: {'score': -2, 'nodes': {
+                                0: {'score': 3
+                                },
+                                1: {'score': 8
+                                },
+                                2: {'score': -4
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        1: {'score': -10, 'nodes': {
+                0: {'score': 0, 'nodes': {
+                        0: {'score': -4, 'nodes': {
+                                0: {'score': -9
+                                },
+                                1: {'score': 8
+                                },
+                                2: {'score': 6
+                                }
+                            }
+                        },
+                        1: {'score': 2, 'nodes': {
+                                0: {'score': -5
+                                },
+                                1: {'score': -6
+                                },
+                                2: {'score': -8
+                                }
+                            }
+                        },
+                        2: {'score': -10, 'nodes': {
+                                0: {'score': 7
+                                },
+                                1: {'score': -5
+                                },
+                                2: {'score': -2
+                                }
+                            }
+                        }
+                    }
+                },
+                1: {'score': -10, 'nodes': {
+                        0: {'score': 0, 'nodes': {
+                                0: {'score': 6
+                                },
+                                1: {'score': -4
+                                },
+                                2: {'score': 2
+                                }
+                            }
+                        },
+                        1: {'score': 7, 'nodes': {
+                                0: {'score': -7
+                                },
+                                1: {'score': 6
+                                },
+                                2: {'score': -8
+                                }
+                            }
+                        },
+                        2: {'score': -2, 'nodes': {
+                                0: {'score': 2
+                                },
+                                1: {'score': -8
+                                },
+                                2: {'score': 9
+                                }
+                            }
+                        }
+                    }
+                },
+                2: {'score': -3, 'nodes': {
+                        0: {'score': 7, 'nodes': {
+                                0: {'score': 0
+                                },
+                                1: {'score': 4
+                                },
+                                2: {'score': -10
+                                }
+                            }
+                        },
+                        1: {'score': -9, 'nodes': {
+                                0: {'score': -1
+                                },
+                                1: {'score': -3
+                                },
+                                2: {'score': 10
+                                }
+                            }
+                        },
+                        2: {'score': 8, 'nodes': {
+                                0: {'score': 2
+                                },
+                                1: {'score': 3
+                                },
+                                2: {'score': -9
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        2: {'score': 6, 'nodes': {
+                0: {'score': 3, 'nodes': {
+                        0: {'score': -9, 'nodes': {
+                                0: {'score': 9
+                                },
+                                1: {'score': 6
+                                },
+                                2: {'score': 6
+                                }
+                            }
+                        },
+                        1: {'score': 6, 'nodes': {
+                                0: {'score': -6
+                                },
+                                1: {'score': 8
+                                },
+                                2: {'score': -10
+                                }
+                            }
+                        },
+                        2: {'score': -8, 'nodes': {
+                                0: {'score': 0
+                                },
+                                1: {'score': 0
+                                },
+                                2: {'score': 4
+                                }
+                            }
+                        }
+                    }
+                },
+                1: {'score': 2, 'nodes': {
+                        0: {'score': -4, 'nodes': {
+                                0: {'score': -10
+                                },
+                                1: {'score': -4
+                                },
+                                2: {'score': 4
+                                }
+                            }
+                        },
+                        1: {'score': 6, 'nodes': {
+                                0: {'score': 8
+                                },
+                                1: {'score': 9
+                                },
+                                2: {'score': 1
+                                }
+                            }
+                        },
+                        2: {'score': 3, 'nodes': {
+                                0: {'score': -5
+                                },
+                                1: {'score': 1
+                                },
+                                2: {'score': 6
+                                }
+                            }
+                        }
+                    }
+                },
+                2: {'score': 0, 'nodes': {
+                        0: {'score': -1, 'nodes': {
+                                0: {'score': -10
+                                },
+                                1: {'score': 6
+                                },
+                                2: {'score': -5
+                                }
+                            }
+                        },
+                        1: {'score': 5, 'nodes': {
+                                0: {'score': -4
+                                },
+                                1: {'score': -6
+                                },
+                                2: {'score': -5
+                                }
+                            }
+                        },
+                        2: {'score': 5, 'nodes': {
+                                0: {'score': -5
+                                },
+                                1: {'score': -3
+                                },
+                                2: {'score': -10
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
